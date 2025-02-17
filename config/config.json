@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "task-management-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/taskManagement/TaskManagementWebPart.js",
+          "manifest": "./src/webparts/taskManagement/TaskManagementWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "TaskManagementWebPartStrings": "lib/webparts/taskManagement/loc/{locale}.js"
+  }
+}

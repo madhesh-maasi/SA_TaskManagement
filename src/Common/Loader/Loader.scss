@@ -1,0 +1,36 @@
+.loaderSection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+}
+
+.loader {
+    width: 200px;
+    height: 32px;
+    box-shadow: 0 3px 0 #fff;
+    background: linear-gradient(#fff 0 0) center/2px 100% no-repeat;
+    display: grid;
+}
+
+.loader:before,
+.loader:after {
+    content: "";
+    grid-area: 1/1;
+    background: repeating-linear-gradient(90deg, #40BE85 0 32px, #0000 0 100%) 0 0/calc(100%/4) 100%;
+    clip-path: inset(0 50% 0 0);
+    animation: l2 0.5s infinite linear;
+}
+
+.loader:before {
+    background: radial-gradient(circle 16px at 16px 50%, #40BE85 92%, #0000) 0 0/calc(100%/4) 100%;
+    clip-path: inset(0 0 0 50%);
+}
+
+@keyframes l2 {
+    100% {
+        background-position: calc(100%/3) 0
+    }
+}

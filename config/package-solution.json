@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "sa-task-management-client-side-solution",
+    "id": "1dbd3ca1-15fc-49f9-a737-8a50fafc7271",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.18.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "sa-task-management description"
+      },
+      "longDescription": {
+        "default": "sa-task-management description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "sa-task-management Feature",
+        "description": "The feature that activates elements of the sa-task-management solution.",
+        "id": "5c5b5451-39e2-4340-837f-f2f833e79727",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/sa-task-management.sppkg"
+  }
+}
