@@ -17,25 +17,27 @@ export interface IListName {
   Tasks: string;
 }
 
-export interface ITaskList {
-  ID: number;
-  TaskNamme: string;
+export interface ITask {
+  ID: string;
+  TaskName: string;
   TaskDescription: string;
-  Category: any;
-  Allocator: IPersonField | null;
-  Performer: IPersonField | null;
-  StartDate: string | null;
-  EndDate: string | null;
-  CompletionDate: string | null;
-  IsApproval: boolean;
-  Recurrence: any;
-  IsCustomer: boolean;
-  CustomerName: string | null;
-  CustomerNo: string | null;
-  PerformerComments: string | null;
-  ApprovalComments: string | null;
-  Status: any;
+  Category: string;
+  Allocator: string;
+  Performer: string;
+  StartDate: string;
+  EndDate: string;
+  CompletionDate: string;
+  IsApproval: string;
+  Recurrence: string;
+  IsCustomer: string;
+  CustomerName: string;
+  CustomerNo: string;
+  PerformerComments: string;
+  ApprovalComments: string;
+  Status: string;
 }
+
+export type ITaskList = ITask[];
 
 export interface IConfig_RecurrenceList {
   TaskName: string;
