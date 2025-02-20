@@ -1,0 +1,12 @@
+.PrimaryBtn {
+    background-color: #40BE85 !important;
+    border: 1px solid #40BE85 !important;
+    padding: 0.4rem 1.5rem !important;
+    color: #fff!important;
+    &:hover {
+        background-color: #2E9E6B !important;
+    }
+    &:focus {
+        outline: none !important;
+    }
+}

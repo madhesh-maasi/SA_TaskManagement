@@ -1,19 +1,15 @@
 import * as React from "react";
-// import styles from "./TaskManagement.module.scss";
+import styles from "./TaskManagement.module.scss";
 import { ITaskManagementProps } from "./ITaskManagementProps";
-import Loader from "../../../Common/Loader/Loader";
 import "../assets/Css/styles.css";
-const TaskManagement = ({
-  description,
-  isDarkTheme,
-  environmentMessage,
-  hasTeamsContext,
-  userDisplayName,
-}: ITaskManagementProps): JSX.Element => {
+import LeftNav from "./LeftNav/LeftNav";
+import TasksList from "./TaskContainer/TaskContainer";
+const TaskManagement = ({ context }: ITaskManagementProps): JSX.Element => {
   return (
-    <>
-      <Loader />
-    </>
+    <div className={styles.Container}>
+      <LeftNav />
+      <TasksList context={context} />
+    </div>
   );
 };
 export default TaskManagement;

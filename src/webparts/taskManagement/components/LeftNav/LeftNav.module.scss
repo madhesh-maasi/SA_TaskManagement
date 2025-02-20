@@ -1,0 +1,38 @@
+.LeftNavContainer {
+    background: #F4F8F5;
+    width: 20rem;
+    .logoSection {
+        img {
+            width: 100%;
+            padding: 24px;
+        }
+    }
+    .NavItems {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        .NavItem {
+            display: flex;
+            align-items: center;
+            color: #4C6359;
+            gap: 12px;
+            padding: 12px 24px;
+            border-radius: 6px;
+            &:hover {
+                background: #DDF6EB;
+            }
+            img {
+                width: 24px;
+            }
+            .NavItemLabel {
+                font-size: 1rem;
+                font-weight: 600;
+            }
+            &.ActiveItem {
+                color: #40BE85;
+                background: #DDF6EB;
+                font-weight: 700;
+            }
+        }
+    }
+}

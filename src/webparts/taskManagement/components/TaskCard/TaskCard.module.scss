@@ -1,0 +1,98 @@
+.cardContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 0 5px #40be858c;
+    width: 33%;
+    max-width: 448px;
+    .cardHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .taskNumber {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #40BE85;
+        }
+        .statusOptions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            .statusText {
+                font-weight: 400;
+                padding: 6px 24px;
+                background: #DDE6F6;
+                color: #3362B5;
+                border-radius: 10px;
+            }
+            i {
+                cursor: pointer;
+            }
+        }
+    }
+    .titleSection {
+        display: flex;
+        justify-content: space-between;
+        .taskTitle {
+            color: #7A847F;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .taskCategory {
+            color: #40BE85;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+    }
+    .taskDescription {
+        color: #7A847F;
+        font-size: 1rem;
+        font-style: italic;
+    }
+    .profileSection {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .taskPerformer {
+            font-size: 1rem;
+            color: #7A847F;
+        }
+        .completionDate {
+            font-size: 1rem;
+            color: #7A847F;
+        }
+    }
+    .taskDateRange {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        i {
+            color: #40BE85;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        .taskStartDate {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1rem;
+            color: #7A847F;
+        }
+        .dashLine {
+            width: 50%;
+            border-bottom: 2px dashed #40BE85;
+        }
+        .taskEndDate {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1rem;
+            color: #7A847F;
+        }
+    }
+}
