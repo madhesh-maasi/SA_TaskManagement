@@ -1,24 +1,52 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import { useEffect, useState } from "react";
-import TaskCard from "../TaskCard/TaskCard";
 import SpServices from "../../../../Services/SPServices/SpServices";
 import { ITaskList, ITask } from "../../../../Interface/interface";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { TabView, TabPanel } from "primereact/tabview";
 import PrimaryBtn from "../../../../Common/PrimaryButton/PrimaryBtn";
+import TaskCard from "../TaskCard/TaskCard";
+import TaskList from "../TaskList/TaskList";
 import styles from "./TaskContainer.module.scss";
 import {
   PeoplePicker,
   PrincipalType,
 } from "@pnp/spfx-controls-react/lib/PeoplePicker";
+import ModalPopup from "../ModalPopup/ModalPopup";
 interface TasksListProps {
   context: any;
 }
 
 const TaskContainer = (props: TasksListProps): JSX.Element => {
+  // Local Variable creation
+
+  const initialPopupController: any[] = [
+    {
+      open: false,
+      popupTitle: "Add Task",
+      popupWidth: "50vw",
+      popupType: "Add",
+      popupFields: [
+        {
+          taskName: "",
+          category: "",
+          taskDescription: "",
+          assignedTo: "",
+          startDate: "",
+          endDate: "",
+          isApproval: false,
+          recurrence: "",
+          isCustomer: false,
+          customerName: "",
+        },
+      ],
+    },
+  ];
   const [taskData, setTaskData] = useState<ITaskList>([]);
   const [selectedCity, setSelectedCity] = useState(null);
+  const [showModal, setShowModal] = useState<boolean>(true);
   const cities = [
     { name: "New York", code: "NY" },
     { name: "Rome", code: "RM" },
@@ -29,18 +57,24 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
   // TODO Getting Tasks from SharePoint
   const handlerGetTasks = async (): Promise<void> => {
     let _arrTaskData: ITaskList;
-    await SpServices.SPReadItems({ Listname: "Tasks" }).then((res: ITask[]) => {
+    await SpServices.SPReadItems({
+      Listname: "Tasks",
+      Select:
+        "*,Performer/Title,Performer/EMail,Author/Title,Author/EMail,Category/Title,Category/ID",
+      Expand: "Performer,Author,Category",
+    }).then((res: ITask[]) => {
       _arrTaskData = res.map((li: ITask) => {
         return {
           ID: li.ID,
+          Title: li.Title,
           TaskName: li.TaskName,
           TaskDescription: li.TaskDescription,
           Category: li.Category,
           Allocator: li.Allocator,
           Performer: li.Performer,
-          StartDate: li.StartDate,
-          EndDate: li.EndDate,
-          CompletionDate: li.CompletionDate,
+          StartDate: new Date(li.StartDate).toLocaleDateString(),
+          EndDate: new Date(li.EndDate).toLocaleDateString(),
+          CompletionDate: new Date(li.CompletionDate).toLocaleDateString(),
           IsApproval: li.IsApproval,
           Recurrence: li.Recurrence,
           IsCustomer: li.IsCustomer,
@@ -52,10 +86,13 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
         };
       });
       console.log(_arrTaskData);
-      setTaskData([..._arrTaskData]);
+      setTaskData([..._arrTaskData]); //spread
     });
   };
 
+  const handlerModalVisibilty = (flag: boolean): void => {
+    setShowModal(flag);
+  };
   useEffect(() => {
     handlerGetTasks().catch((err) => {
       console.log(err);
@@ -64,6 +101,14 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
 
   return (
     <div className={styles.taskContainer}>
+      {
+        <ModalPopup
+          context={props.context}
+          showModal={showModal}
+          onHide={() => setShowModal(false)}
+          handlerModalVisibilty={() => handlerModalVisibilty(false)}
+        />
+      }
       <div className={styles.headerSection}>
         <h3>Tasks List</h3>
         <div className={styles.filterSection}>
@@ -95,18 +140,18 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
             label="New Task"
             onClick={() => {
               console.log("New Task");
+              handlerModalVisibilty(true);
             }}
           />
         </div>
       </div>
-      <TabView>
-        <TabPanel header="Card">
+      <TabView className={styles.tabView}>
+        <TabPanel header="List">
           <div className={styles.CardView}>
-            {taskData.length > 0 &&
-              taskData.map((task, i) => <TaskCard key={i} task={task} />)}
+            <TaskList taskData={taskData} />
           </div>
         </TabPanel>
-        <TabPanel header="List">
+        <TabPanel header="Card">
           <div className={styles.CardView}>
             {taskData.length > 0 &&
               taskData.map((task, i) => <TaskCard key={i} task={task} />)}
