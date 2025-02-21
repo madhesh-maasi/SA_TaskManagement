@@ -1,3 +1,7 @@
+.tabView {
+    padding: 1rem;
+}
+
 .taskContainer {
     width: 100%;
     .headerSection {
@@ -26,5 +30,6 @@
         flex-wrap: wrap;
         gap: 0.5rem;
         justify-content: space-between;
+        width: 100%;
     }
 }

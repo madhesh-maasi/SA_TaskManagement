@@ -71,3 +71,19 @@ This extension illustrates the following concepts:
 - [Use Microsoft Graph in your solution](https://docs.microsoft.com/en-us/sharepoint/dev/spfx/web-parts/get-started/using-microsoft-graph-apis)
 - [Publish SharePoint Framework applications to the Marketplace](https://docs.microsoft.com/en-us/sharepoint/dev/spfx/publish-to-marketplace-overview)
 - [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp) - Guidance, tooling, samples and open-source controls for your Microsoft 365 development
+
+# Comments by maasi:
+
+<!-- Versions used in this package -->
+
+Node: v18.18.1
++-- @microsoft/generator-sharepoint@1.18.2
++-- @pnp/pnpjs@2.14.0
++-- @pnp/sp@2.11.0
++-- corepack@0.19.0
++-- gulp-cli@2.3.0
++-- npm@10.9.0
++-- spfx-fast-serve@4.0.2
+`-- yo@4.3.1
+
+<!--  -->

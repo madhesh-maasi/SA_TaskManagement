@@ -1,0 +1,50 @@
+.modalHeader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #40BE85;
+}
+
+.modalContent {
+    margin: 0.5rem;
+    label {
+        font-size: 1rem;
+        color: #4C6359;
+        font-weight: 600;
+        margin: 0.25rem;
+    }
+    .row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 1rem 0;
+        .col12 {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .col6 {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+        }
+        .col4 {
+            width: 33.33%;
+            display: flex;
+            flex-direction: column;
+        }
+        .modalCheckbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    }
+}
+
+.modalFooter {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin: 1rem 0 0;
+    gap: 1rem;
+}

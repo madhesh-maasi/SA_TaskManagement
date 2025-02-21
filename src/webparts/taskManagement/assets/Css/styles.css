@@ -11,3 +11,85 @@
     left: 0 !important;
     right: 0 !important;
 }
+
+
+/*  Table Common CSS */
+
+.p-tabview .p-tabview-nav li .p-tabview-nav-link {
+    border: 0px solid transparent !important;
+}
+
+.p-tabview .p-tabview-panels {
+    padding: 1.25rem 0.5rem !important;
+}
+
+.p-datatable .p-datatable-thead>tr>th {
+    border: unset !important;
+    color: #7A847F !important;
+}
+
+.p-datatable .p-datatable-tbody>tr>td {
+    color: #4C6359 !important;
+}
+
+.p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+    border: unset !important;
+    border-bottom: 3px solid #40BE85 !important;
+}
+
+.p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link a span {
+    color: #40BE85 !important;
+}
+
+.p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link:hover {
+    border: unset !important;
+    border-bottom: 3px solid #40BE85 !important;
+}
+
+.p-tabview .p-tabview-nav li .p-tabview-nav-link:hover {
+    border: unset !important;
+    border-bottom: 2px solid #7A847F !important;
+}
+
+li.p-unselectable-text.p-tabview-selected.p-highlight span.p-tabview-title {
+    color: #40BE85 !important;
+}
+
+.p-tabview .p-tabview-nav {
+    border: unset !important;
+}
+
+
+/* Avatar Common CSS */
+
+.p-avatar {
+    width: 1.75rem!important;
+    height: 1.75rem !important;
+}
+
+
+/* Modal Common CSS */
+
+.p-dialog {
+    border: unset !important;
+}
+
+.p-dialog-content {
+    padding: 0.5rem !important;
+}
+
+.p-dialog-title {
+    color: #40BE85 !important;
+    text-align: center;
+    font-size: 1.25rem !important;
+}
+
+.p-dialog .p-dialog-header {
+    border: unset !important;
+}
+
+.p-dialog .p-dialog-header {
+    border-top-right-radius: 8px !important;
+    border-top-left-radius: 8px !important;
+    padding: 0.5rem 1rem !important;
+}

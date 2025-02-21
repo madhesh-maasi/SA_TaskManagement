@@ -20,9 +20,9 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
     <div className={styles.cardContainer}>
       {/* Header section */}
       <div className={styles.cardHeader}>
-        <div className={styles.taskNumber}>T_0001</div>
+        <div className={styles.taskNumber}>{task?.Title}</div>
         <div className={styles.statusOptions}>
-          <div className={styles.statusText}>In Progress</div>
+          <div className={styles.statusText}>{task?.Status}</div>
           <i className="pi pi-ellipsis-v" />
         </div>
       </div>

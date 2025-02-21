@@ -7,8 +7,14 @@ export interface IPersonField {
   EMail: string;
 }
 
+export interface IPerformer {
+  Title: string;
+  EMail: string;
+}
+
 export interface ICategory {
   Title: string;
+  ID: string;
 }
 
 export interface IListName {
@@ -19,11 +25,12 @@ export interface IListName {
 
 export interface ITask {
   ID: string;
+  Title: string;
   TaskName: string;
   TaskDescription: string;
-  Category: string;
+  Category: ICategory;
   Allocator: string;
-  Performer: string;
+  Performer: IPerformer;
   StartDate: string;
   EndDate: string;
   CompletionDate: string;
