@@ -2,13 +2,13 @@
     display: flex;
     flex-direction: column;
     gap: 14px;
-    margin: 10px;
     padding: 10px;
     border-radius: 5px;
     background-color: #fff;
-    box-shadow: 0 0 5px #40be858c;
+    box-shadow: 0 0 5px #40be8541;
     width: 33%;
     max-width: 448px;
+    position: relative;
     .cardHeader {
         display: flex;
         justify-content: space-between;
@@ -52,6 +52,7 @@
         color: #7A847F;
         font-size: 1rem;
         font-style: italic;
+        height: 64px;
     }
     .profileSection {
         display: flex;
@@ -60,10 +61,21 @@
         .taskPerformer {
             font-size: 1rem;
             color: #7A847F;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         .completionDate {
             font-size: 1rem;
-            color: #7A847F;
+            color: #40BE85;
+            font-weight: 500;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            i {
+                font-size: 1.25rem;
+                font-weight: 600;
+            }
         }
     }
     .taskDateRange {

@@ -7,6 +7,8 @@ import { Avatar } from "primereact/avatar";
 import styles from "./TaskList.module.scss";
 interface TaskListProps {
   taskData: ITaskList;
+  handlerModalProps: (type: string, id: number) => void;
+  handlerDeleteModalProps: (flag: boolean, id: number) => void;
 }
 const TaskList = (props: TaskListProps): JSX.Element => {
   const [taskData, setTaskData] = useState<ITaskList>([]);
@@ -15,20 +17,26 @@ const TaskList = (props: TaskListProps): JSX.Element => {
   const handlerPerformerTemplate = (rowData: ITask): JSX.Element => {
     return (
       <div className={styles.tablePerformer}>
-        <Avatar label={rowData.Performer.Title.charAt(0)} />
-        {rowData.Performer.Title}
+        <Avatar
+          image={`/_layouts/15/userphoto.aspx?size=S&username=${rowData?.Performer.EMail}`}
+        />
+        {rowData?.Performer?.Title}
       </div>
     );
   };
   const handlerCategoryTemplate = (rowData: ITask): JSX.Element => {
-    return <div className={styles.tableCategory}>{rowData.Category.Title}</div>;
+    return (
+      <div className={styles.tableCategory}>{rowData?.Category?.name}</div>
+    );
   };
   const handlerStatusTemplate = (rowData: ITask): JSX.Element => {
     return (
       <div
         style={{
           backgroundColor:
-            rowData.Status === "In Progress"
+            rowData.Status === "Yet to start"
+              ? "#F0F0F0"
+              : rowData.Status === "In Progress"
               ? "#DDE6F6"
               : rowData.Status === "Overdue"
               ? "#F6E7DD"
@@ -38,7 +46,9 @@ const TaskList = (props: TaskListProps): JSX.Element => {
               ? "#D4EDDA"
               : "#F8D7DA",
           color:
-            rowData.Status === "In Progress"
+            rowData.Status === "Yet to start"
+              ? "#333"
+              : rowData.Status === "In Progress"
               ? "#3D7E9A"
               : rowData.Status === "Overdue"
               ? "#856404"
@@ -49,7 +59,10 @@ const TaskList = (props: TaskListProps): JSX.Element => {
               : "#721C24",
           padding: "0.3rem 0.5rem",
           borderRadius: "0.3rem",
-          display: "inline-block",
+          fontWeight: 400,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
         {rowData.Status}
@@ -65,6 +78,9 @@ const TaskList = (props: TaskListProps): JSX.Element => {
       </div>
     );
   };
+  const handlerDeleteModalProps = (id: number): void => {
+    props.handlerDeleteModalProps(true, id);
+  };
   const handlerTaskAction = (rowData: ITask): JSX.Element => {
     return (
       <div className={styles.actionIcons}>
@@ -73,13 +89,14 @@ const TaskList = (props: TaskListProps): JSX.Element => {
           className="pi pi-pencil"
           onClick={() => {
             console.log(`${rowData.ID} Edit Task`);
+            props.handlerModalProps("Edit", rowData.ID);
           }}
         />
         <i
           style={{ color: "#B53E33" }}
           className="pi pi-trash"
           onClick={() => {
-            console.log(`${rowData.ID} Delete Task`);
+            handlerDeleteModalProps(rowData.ID);
           }}
         />
       </div>
@@ -108,17 +125,17 @@ const TaskList = (props: TaskListProps): JSX.Element => {
             body={handlerTaskDescriptionTemplate}
           />
           <Column
-            style={{ width: "10%" }}
+            style={{ width: "15%" }}
             field="Performer"
             header="Assigned to"
             body={handlerPerformerTemplate}
           />
           <Column
-            style={{ width: "10%" }}
+            style={{ width: "6%" }}
             field="StartDate"
             header="Start date"
           />
-          <Column style={{ width: "10%" }} field="EndDate" header="End date" />
+          <Column style={{ width: "6%" }} field="EndDate" header="End date" />
           <Column
             style={{ width: "16%" }}
             field="Status"

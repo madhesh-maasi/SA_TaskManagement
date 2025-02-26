@@ -1,0 +1,53 @@
+.DeletePopup {
+    padding: 6px;
+}
+
+.deleteDialog {
+    .p-dialog-header {
+        background-color: #e74c3c;
+        color: #fff;
+        font-size: 1.5rem;
+    }
+    .p-dialog-content {
+        text-align: center;
+        font-size: 1rem;
+    }
+}
+
+.message {
+    text-align: center;
+}
+
+.buttonGroup {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.cancelButton {
+    background: #bdc3c7;
+    border: none;
+    color: #fff;
+    padding: 0.5rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.cancelButton:hover {
+    background: #95a5a6;
+}
+
+.confirmButton {
+    background: #e74c3c;
+    border: none;
+    color: #fff;
+    padding: 0.5rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.confirmButton:hover {
+    background: #c0392b;
+}

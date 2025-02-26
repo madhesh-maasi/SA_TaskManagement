@@ -41,10 +41,74 @@
     }
 }
 
+.taskStatus {
+    background-color: #E1F6DD;
+    color: #42B533;
+    display: flex;
+    justify-content: center;
+    padding: .5rem;
+    border-radius: 10px;
+    width: 220px;
+}
+
 .modalFooter {
     display: flex;
     justify-content: flex-end;
     align-items: center;
     margin: 1rem 0 0;
     gap: 1rem;
+}
+
+.pillContainer {
+    display: inline-flex;
+    align-items: center;
+    background-color: #f0f0f0;
+    border-radius: 50px;
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+    color: #333;
+    margin: 0.5rem 0;
+}
+
+.pillLabel {
+    font-weight: 600;
+    margin-right: 0.4rem;
+}
+
+.pillValue {
+    background-color: #e2e8f0;
+    border-radius: 12px;
+    padding: 0.2rem 0.6rem;
+    margin-right: 0.6rem;
+}
+
+.statusPill {
+    display: inline-block;
+    padding: 0.2rem 1rem;
+    border-radius: 4px;
+    font-weight: 400;
+    &.yetToStart {
+        background-color: #F0F0F0;
+        color: #333;
+    }
+    &.inProgress {
+        background-color: #DDE6F6;
+        color: #3362B5;
+    }
+    &.completed {
+        background-color: #E6F9E9;
+        color: #2E8B57;
+    }
+    &.awaitingApproval {
+        background-color: #FFF4E5;
+        color: #D97706;
+    }
+    &.approved {
+        background-color: #E6F4F1;
+        color: #218B81;
+    }
+    &.rejected {
+        background-color: #FBEAEA;
+        color: #D9534F;
+    }
 }

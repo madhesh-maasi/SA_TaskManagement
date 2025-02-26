@@ -67,6 +67,10 @@ li.p-unselectable-text.p-tabview-selected.p-highlight span.p-tabview-title {
     height: 1.75rem !important;
 }
 
+.p-avatar img {
+    border-radius: 4px !important;
+}
+
 
 /* Modal Common CSS */
 
@@ -92,4 +96,18 @@ li.p-unselectable-text.p-tabview-selected.p-highlight span.p-tabview-title {
     border-top-right-radius: 8px !important;
     border-top-left-radius: 8px !important;
     padding: 0.5rem 1rem !important;
+}
+
+
+/*  */
+
+.ms-BasePicker-input::placeholder {
+    color: #495057 !important;
+    font-size: 1rem !important;
+    font-weight: 400 !important;
+}
+
+.ms-BasePicker-input:placeholder-shown {
+    text-overflow: ellipsis;
+    margin: 4px 6px;
 }
