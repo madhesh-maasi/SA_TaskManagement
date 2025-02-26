@@ -9,19 +9,16 @@ import NavTasks from "../../assets/Images/NavTasks.png";
 import NavApproval from "../../assets/Images/NavApproval.png";
 import NavReport from "../../assets/Images/NavReport.png";
 
-const LeftNav = (): JSX.Element => {
-  const [isAdmin, setIsAdmin] = useState(false);
+const LeftNav = (props: any): JSX.Element => {
   const [selectedNav, setSelectedNav] = useState("");
-
-  // Component Lifecycle
-  useEffect(() => {
-    setIsAdmin(true);
-    setSelectedNav("Tasks");
-  }, []);
 
   const handleNavClick = (navItem: string): void => {
     setSelectedNav(navItem);
   };
+  // Component Lifecycle
+  useEffect(() => {
+    setSelectedNav("Tasks");
+  }, [props.currentUser]);
 
   return (
     <div className={styles.LeftNavContainer}>
@@ -41,7 +38,7 @@ const LeftNav = (): JSX.Element => {
           />
           <div className={styles.NavItemLabel}>Tasks</div>
         </div>
-        {isAdmin && (
+        {props.currentUser?.isApprover && (
           <>
             <div
               className={`${styles.NavItem} ${

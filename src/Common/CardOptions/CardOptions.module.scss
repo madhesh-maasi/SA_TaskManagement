@@ -1,0 +1,38 @@
+.cardOptionsContainer {
+    position: absolute;
+    top: 40px; // adjust based on your layout
+    right: 0;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    overflow: hidden;
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    &.visible {
+        opacity: 1;
+        transform: scale(1);
+        pointer-events: auto;
+    }
+}
+
+.cardOptions {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    .option {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        &:hover {
+            background-color: #f0f0f0;
+        }
+    }
+    .edit {
+        color: #3362B5;
+    }
+    .delete {
+        color: #B53E33;
+    }
+}
