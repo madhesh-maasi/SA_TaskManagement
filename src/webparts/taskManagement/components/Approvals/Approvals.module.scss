@@ -1,0 +1,27 @@
+.approvalContainer {
+    width: 100%;
+    .headerSection {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .headerSectionTitle {
+            font-size: 20px;
+            font-weight: 600;
+            color: #40BE85;
+        }
+        .headerSectionFilter {
+            margin-left: auto;
+        }
+    }
+    .approvalCardsSection {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+}

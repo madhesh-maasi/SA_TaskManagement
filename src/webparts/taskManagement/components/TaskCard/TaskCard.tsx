@@ -144,8 +144,8 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
           <Avatar
             image={`/_layouts/15/userphoto.aspx?size=S&username=${
               props.currentUser.isApprover
-                ? task?.Performer.EMail
-                : task?.Author.EMail
+                ? task?.Performer?.EMail
+                : task?.Author?.EMail
             }`}
           />
           {props.currentUser.isApprover
@@ -169,6 +169,7 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
           {new Date(task?.EndDate).toLocaleDateString()}
         </div>
       </div>
+      {/* Date Range */}
     </div>
   );
 };

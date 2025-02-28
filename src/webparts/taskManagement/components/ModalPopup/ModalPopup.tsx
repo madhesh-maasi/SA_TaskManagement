@@ -38,7 +38,8 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
   const [updatedStatus, setUpdatedStatus] = useState<string>("");
   const toast = useRef<Toast>(null);
 
-  const handlerAddItemToConfig_Ref = async (reqJSON: any) => {
+  // Function to add item in SharePoint List Recurrence
+  const handlerAddItemToConfig_Rec = async (reqJSON: any) => {
     await SpServices.SPAddItem({
       Listname: Config.ListName.Config_Recurrence,
       RequestJSON: reqJSON,
@@ -57,6 +58,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
         console.log(error);
       });
   };
+  // Function to add item in SharePoint List
   const handlerAddItemToTaskList = async (reqJSON: any) => {
     await SpServices.SPAddItem({
       Listname: Config.ListName.Tasks,
@@ -71,6 +73,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
         console.log(error);
       });
   };
+  // Function to update item in SharePoint List
   const handlerUpdateItemToTaskList = async (reqJSON: any, id: number) => {
     await SpServices.SPUpdateItem({
       Listname: Config.ListName.Tasks,
@@ -87,6 +90,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
         console.log(error);
       });
   };
+  // Function to return validation status and message
   const isValidated = (task: ITask): { value: boolean; message: string } => {
     if (!task) {
       return {
@@ -299,7 +303,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
     };
     console.log(requestTaskJSON);
     if (task?.IsRecurrence && props.modalProps.type === "Add") {
-      handlerAddItemToConfig_Ref(requestRecurrenceJSON).catch((err) => {
+      handlerAddItemToConfig_Rec(requestRecurrenceJSON).catch((err) => {
         console.log(err);
       });
     } else {

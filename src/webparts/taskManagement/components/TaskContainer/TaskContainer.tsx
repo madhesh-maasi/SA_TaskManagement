@@ -48,7 +48,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
     let filtered = [...allTaskData];
 
     // If current user is not an approver, filter only their tasks
-    if (!props.currentUser.isApprover) {
+    if (!props.currentUser?.isApprover) {
       filtered = filtered.filter(
         (task) =>
           task.Performer && task.Performer.EMail === props.currentUser.Email
@@ -66,7 +66,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
             ))
       );
     }
-    if (props.currentUser.isApprover) {
+    if (props.currentUser?.isApprover) {
       if (selectedFilterUser !== "") {
         filtered = filtered.filter(
           (task) =>
@@ -126,6 +126,8 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
       Select:
         "*,Performer/Title,Performer/EMail,Author/Title,Author/EMail,Category/Title,Category/ID,Approver/Title,Approver/EMail,Recurrence/ID,Recurrence/Title",
       Expand: "Performer,Author,Category,Approver,Recurrence",
+      Orderby: "ID",
+      Orderbydecorasc: false,
     }).then((res: ITask[]) => {
       _arrTaskData = res.map((li: ITask) => {
         return {
@@ -155,7 +157,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
           Approver: li.Approver,
         };
       });
-      // if (!props.currentUser.isApprover) {
+      // if (!props.currentUser?.isApprover) {
       //   _arrTaskData = _arrTaskData.filter(
       //     (li) => li.Approver?.EMail === props.currentUser.Email
       //   );
@@ -258,7 +260,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
             style={{ width: 200 }}
             context={props.context}
             label={`${
-              props.currentUser.isApprover ? "Performer" : "Allocator"
+              props.currentUser?.isApprover ? "Performer" : "Allocator"
             } `}
             selectedItems={[]}
             onChange={(e: any) => {
@@ -266,12 +268,12 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
               setSelectedFilterUser(selected);
             }}
             placeholder={
-              props.currentUser.isApprover ? "Performer" : "Allocator"
+              props.currentUser?.isApprover ? "Performer" : "Allocator"
             }
           />
           <InputText
             style={{ width: 200 }}
-            placeholder="Search..."
+            placeholder="Search"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
@@ -279,7 +281,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
             className={`pi pi-refresh ${styles.iconRefresh}`}
             onClick={handleRefresh}
           />
-          {props.currentUser.isApprover && (
+          {props.currentUser?.isApprover && (
             <PrimaryBtn
               label="New Task"
               onClick={() => {

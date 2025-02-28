@@ -17,7 +17,7 @@
         padding: 0 1rem;
         h3 {
             color: #40BE85;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: 600;
             margin: 0;
         }
@@ -43,5 +43,8 @@
         flex-wrap: wrap;
         gap: 0.8rem;
         width: 100%;
+        height: calc(100vh - 308px);
+        overflow: auto;
+        align-items: flex-start;
     }
 }
