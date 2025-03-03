@@ -39,7 +39,7 @@ const statusStyleMap: { [key: string]: React.CSSProperties } = {
     borderRadius: "4px",
     fontWeight: 400,
   },
-  "Awaiting Approval": {
+  "Awaiting approval": {
     backgroundColor: "#FFF4E5",
     color: "#D97706",
     padding: "0.2rem 2rem",

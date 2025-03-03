@@ -157,11 +157,6 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
           Approver: li.Approver,
         };
       });
-      // if (!props.currentUser?.isApprover) {
-      //   _arrTaskData = _arrTaskData.filter(
-      //     (li) => li.Approver?.EMail === props.currentUser.Email
-      //   );
-      // }
       setAllTaskData([..._arrTaskData]);
       setTaskData([..._arrTaskData]);
     });

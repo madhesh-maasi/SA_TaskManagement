@@ -1,9 +1,12 @@
 import * as React from "react";
+import { useState, useEffect } from "react";
 import styles from "./ApprovalCard.module.scss";
 import { Avatar } from "primereact/avatar";
-
+import ApprovalModal from "../ApprovalModal/ApprovalModal";
+import { ITask } from "../../../../../Interface/interface";
 interface ApprovalCardProps {
-  item: any;
+  item: ITask;
+  handerRender: () => void;
 }
 const statusStyleMap: { [key: string]: React.CSSProperties } = {
   Completed: {
@@ -26,57 +29,90 @@ const statusStyleMap: { [key: string]: React.CSSProperties } = {
   },
 };
 
-const ApprovalCard: React.FC<ApprovalCardProps> = ({ item }): JSX.Element => {
-  const status = item.Status || "Approved"; // Default to Approved if not provided
-
+const ApprovalCard: React.FC<ApprovalCardProps> = ({
+  item,
+  handerRender,
+}): JSX.Element => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedAction, setSelectedAction] = useState("");
+  const handlerModalToggle = (flag: boolean): void => {
+    setIsModalVisible(flag);
+    handerRender();
+  };
+  useEffect(() => {
+    handlerModalToggle(false);
+  }, []);
   return (
-    <div className={styles.approvalCard}>
-      <div className={styles.approvalCardHeader}>
-        <div className={styles.approvalCardTitle}>{item.Title}</div>
-        <div className={styles.approvalCardPerformer}>
-          <div className={styles.taskPerformer}>
-            <Avatar
-              image={`/_layouts/15/userphoto.aspx?size=S&username=madhesh@safeaccounting.no`}
-            />
-            {"Madhesh"}
+    <>
+      <ApprovalModal
+        isModalVisible={isModalVisible}
+        selectedID={item.ID}
+        selectedStatus={selectedAction}
+        handlerModalToggle={handlerModalToggle}
+      />
+      <div className={styles.approvalCard}>
+        <div className={styles.approvalCardHeader}>
+          <div className={styles.approvalCardTitle}>{item.Title}</div>
+          <div className={styles.approvalCardPerformer}>
+            <div className={styles.taskPerformer}>
+              <Avatar
+                image={`/_layouts/15/userphoto.aspx?size=S&username=${item?.Performer?.EMail}`}
+              />
+              {item?.Performer?.Title}
+            </div>
+          </div>
+        </div>
+        <div className={styles.approvalCardBody}>{item?.TaskName}</div>
+        {/* Date Range */}
+        <div className={styles.taskDateRange}>
+          <div className={styles.taskStartDate}>
+            <i className="pi pi-calendar" />
+            {new Date(item.StartDate).toLocaleDateString()}
+          </div>
+          <div className={styles.dashLine} />
+          <div className={styles.taskEndDate}>
+            <i className="pi pi-calendar" />
+            {new Date(item.StartDate).toLocaleDateString()}
+          </div>
+        </div>
+        {/* Completed Date & Status Pill */}
+        <div className={styles.approvalCardFooter}>
+          <div className={styles.taskCompletedDate}>
+            <i className="pi pi-calendar" />
+            {item?.CompletionDate &&
+            !isNaN(new Date(item.CompletionDate).getTime())
+              ? new Date(item.CompletionDate).toLocaleDateString()
+              : "-"}
+          </div>
+          <div>
+            {item.Status !== "Awaiting approval" ? (
+              <div style={statusStyleMap[item.Status]}>{item.Status}</div>
+            ) : (
+              <div className={styles.approvalAction}>
+                <div
+                  className={styles.approveButton}
+                  onClick={() => {
+                    setSelectedAction("Approve");
+                    handlerModalToggle(true);
+                  }}
+                >
+                  <i className="pi pi-check" />
+                </div>
+                <div
+                  className={styles.rejectButton}
+                  onClick={() => {
+                    setSelectedAction("Reject");
+                    handlerModalToggle(true);
+                  }}
+                >
+                  <i className="pi pi-times" />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
-      <div className={styles.approvalCardBody}>{item.TaskName}</div>
-      {/* Date Range */}
-      <div className={styles.taskDateRange}>
-        <div className={styles.taskStartDate}>
-          <i className="pi pi-calendar" />
-          {new Date().toLocaleDateString()}
-        </div>
-        <div className={styles.dashLine} />
-        <div className={styles.taskEndDate}>
-          <i className="pi pi-calendar" />
-          {new Date().toLocaleDateString()}
-        </div>
-      </div>
-      {/* Completed Date & Status Pill */}
-      <div className={styles.approvalCardFooter}>
-        <div className={styles.taskCompletedDate}>
-          <i className="pi pi-calendar" />
-          {new Date().toLocaleDateString()}
-        </div>
-        <div>
-          {item.Status !== "Completed" ? (
-            <div style={statusStyleMap[status]}>{status}</div>
-          ) : (
-            <div className={styles.approvalAction}>
-              <div className={styles.approveButton}>
-                <i className="pi pi-check" />
-              </div>
-              <div className={styles.rejectButton}>
-                <i className="pi pi-times" />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
 

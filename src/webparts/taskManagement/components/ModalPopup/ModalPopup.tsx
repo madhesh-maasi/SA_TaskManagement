@@ -38,6 +38,22 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
   const [updatedStatus, setUpdatedStatus] = useState<string>("");
   const toast = useRef<Toast>(null);
 
+  // Define a recurrence style map
+  const recurrenceStyleMap: { [key: string]: React.CSSProperties } = {
+    Daily: {
+      backgroundColor: "#E6F7FF",
+      color: "#007ACC",
+    },
+    Weekly: {
+      backgroundColor: "#FFF4CC",
+      color: "#D89500",
+    },
+    Monthly: {
+      backgroundColor: "#E6FFED",
+      color: "#2E8B57",
+    },
+  };
+
   // Function to add item in SharePoint List Recurrence
   const handlerAddItemToConfig_Rec = async (reqJSON: any) => {
     await SpServices.SPAddItem({
@@ -266,7 +282,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
         task.RecurrenceDate // For Monthly recurrence
       );
     }
-
+    // Prepare JSON for Recurrence and Task
     const requestRecurrenceJSON = {
       Title: task.TaskName,
       StartDate: new Date(task?.StartDate),
@@ -283,6 +299,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
       CategoryId: task.Category?.code,
       NextTaskDate: NextTaskDate, // Now NextTaskDate is computed + 1 day
     };
+    // Prepare JSON for Task
     const requestTaskJSON = {
       Title: `T_${formattedID}`,
       TaskName: task.TaskName,
@@ -297,11 +314,15 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
       CustomerNo: task.CustomerNo,
       PerformerComments: task.PerformerComments,
       ApprovalComments: task.ApprovalComments,
-      Status: updatedStatus !== "" ? updatedStatus : task.Status,
+      Status:
+        updatedStatus !== ""
+          ? updatedStatus === "Completed" && task.IsApproval
+            ? "Awaiting approval"
+            : updatedStatus
+          : task.Status,
       ApproverId: task.Approver?.ID,
-      CompletionDate: task.Status === "Completed" ? new Date() : null,
+      CompletionDate: updatedStatus === "Completed" ? new Date() : null,
     };
-    console.log(requestTaskJSON);
     if (task?.IsRecurrence && props.modalProps.type === "Add") {
       handlerAddItemToConfig_Rec(requestRecurrenceJSON).catch((err) => {
         console.log(err);
@@ -318,6 +339,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
       }
     }
   };
+  // Function to get Recurrence Info
   const handlerGetRecurrenceInfo = async (): Promise<void> => {
     if (taskData?.IsRecurrence) {
       SpServices.SPReadItemUsingId({
@@ -357,7 +379,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
     <div>
       <Toast ref={toast} />
       <Dialog
-        header={"Add Task"}
+        header={`${props.modalProps.type === "Edit" ? "Update" : "Add"} Task`}
         visible={props.showModal}
         style={{ width: "50vw" }}
         onHide={() => {
@@ -585,19 +607,26 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
               )}
             </div>
           ) : taskData?.IsRecurrence ? (
-            <div className={styles.pillContainer}>
+            <div
+              className={styles.pillContainer}
+              style={recurrenceStyleMap[taskData?.RecurrenceType ?? ""] || {}}
+            >
               <span className={styles.pillLabel}>Recurrence Type:</span>
               <span className={styles.pillValue}>
                 {taskData?.RecurrenceType}
               </span>
-              <span className={styles.pillLabel}>
-                {taskData?.RecurrenceType === "Weekly" ? "Day:" : "Date:"}
-              </span>
-              <span className={styles.pillValue}>
-                {taskData?.RecurrenceType === "Weekly"
-                  ? taskData?.RecurrenceDay
-                  : taskData?.RecurrenceDate}
-              </span>
+              {taskData.RecurrenceType !== "Daily" && (
+                <>
+                  <span className={styles.pillLabel}>
+                    {taskData?.RecurrenceType === "Weekly" ? "Day:" : "Date:"}
+                  </span>
+                  <span className={styles.pillValue}>
+                    {taskData?.RecurrenceType === "Weekly"
+                      ? taskData?.RecurrenceDay
+                      : taskData?.RecurrenceDate}
+                  </span>
+                </>
+              )}
             </div>
           ) : null}
 
@@ -692,7 +721,8 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
               <div className={styles.col4}>
                 <label htmlFor="Status">Status</label>
                 {taskData?.Status !== "Completed" &&
-                taskData?.Status !== "Approved" ? (
+                taskData?.Status !== "Approved" &&
+                taskData?.Status !== "Awaiting approval" ? (
                   <Dropdown
                     value={
                       updatedStatus === ""

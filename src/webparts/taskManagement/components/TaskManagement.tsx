@@ -69,7 +69,7 @@ const TaskManagement = ({ context }: ITaskManagementProps): JSX.Element => {
           />
           <Route
             path="/approvals"
-            element={<Approvals context={context} currentUser={currentUser!} />}
+            element={<Approvals context={context} currentUser={currentUser} />}
           />
           <Route
             path="/reports"

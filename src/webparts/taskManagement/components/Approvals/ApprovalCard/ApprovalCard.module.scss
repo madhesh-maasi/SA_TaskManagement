@@ -82,12 +82,13 @@
                 background-color: #E6F9E9;
                 color: #2E8B57;
                 border: none;
-                padding: 4px 10px;
+                padding: 4px 14px;
                 border-radius: 5px;
-                border: 1px solid #2E8B57;
+                border: 1px solid #75c799;
                 cursor: pointer;
                 &:hover {
                     background-color: #cbecd0;
+                    border: 1px solid #2E8B57;
                 }
                 i {
                     background-color: #2E8B57;
@@ -97,22 +98,23 @@
                 background-color: #FBEAEA;
                 color: #D9534F;
                 border: none;
-                padding: 4px 10px;
+                padding: 4px 14px;
                 border-radius: 5px;
-                border: 1px solid #D9534F;
+                border: 1px solid #e9a3a0;
                 cursor: pointer;
                 &:hover {
                     background-color: #f7d7d7;
+                    border: 1px solid #D9534F;
                 }
                 i {
                     background-color: #D9534F;
                 }
             }
             i {
-                font-size: 1rem;
+                font-size: 0.7rem;
                 font-weight: 600;
                 color: #fff;
-                padding: 6px;
+                padding: 7px 6px 5px 6px;
                 border-radius: 24px;
             }
         }
