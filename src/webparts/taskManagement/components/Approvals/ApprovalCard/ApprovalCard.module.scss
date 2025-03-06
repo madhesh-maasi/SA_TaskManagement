@@ -1,0 +1,129 @@
+.approvalCard {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background-color: #ffffff;
+    box-shadow: 0 0 5px #40be8541;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    width: 33%;
+    .approvalCardHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .approvalCardTitle {
+            font-size: 16px;
+            font-weight: 600;
+            color: #40BE85;
+        }
+        .approvalCardPerformer {
+            .taskPerformer {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                justify-content: flex-end;
+            }
+        }
+    }
+    .approvalCardBody {
+        .taskName {
+            color: #7A847F !important;
+            font-weight: 600;
+        }
+        .taskCategory {
+            font-weight: 600;
+            color: #40BE85;
+            text-align: right;
+        }
+    }
+    .taskDateRange {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        i {
+            color: #40BE85;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        .taskStartDate {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1rem;
+            color: #7A847F;
+        }
+        .dashLine {
+            width: 50%;
+            border-bottom: 2px dashed #40BE85;
+        }
+        .taskEndDate {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1rem;
+            color: #7A847F;
+        }
+    }
+    .approvalCardFooter {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .taskCompletedDate {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1rem;
+            color: #40BE85;
+            i {
+                font-size: 1.25rem;
+                font-weight: 600;
+            }
+        }
+        .approvalAction {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            .approveButton {
+                background-color: #E6F9E9;
+                color: #2E8B57;
+                border: none;
+                padding: 4px 14px;
+                border-radius: 5px;
+                border: 1px solid #75c799;
+                cursor: pointer;
+                &:hover {
+                    background-color: #cbecd0;
+                    border: 1px solid #2E8B57;
+                }
+                i {
+                    background-color: #2E8B57;
+                }
+            }
+            .rejectButton {
+                background-color: #FBEAEA;
+                color: #D9534F;
+                border: none;
+                padding: 4px 14px;
+                border-radius: 5px;
+                border: 1px solid #e9a3a0;
+                cursor: pointer;
+                &:hover {
+                    background-color: #f7d7d7;
+                    border: 1px solid #D9534F;
+                }
+                i {
+                    background-color: #D9534F;
+                }
+            }
+            i {
+                font-size: 0.7rem;
+                font-weight: 600;
+                color: #fff;
+                padding: 7px 6px 5px 6px;
+                border-radius: 24px;
+            }
+        }
+    }
+}

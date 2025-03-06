@@ -48,10 +48,12 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
     let filtered = [...allTaskData];
 
     // If current user is not an approver, filter only their tasks
-    if (!props.currentUser.isApprover) {
+    if (!props.currentUser?.isApprover) {
       filtered = filtered.filter(
         (task) =>
-          task.Performer && task.Performer.EMail === props.currentUser.Email
+          (task.Performer &&
+            task.Performer.EMail === props.currentUser.Email) ||
+          (task.Author && task.Author.EMail === props.currentUser.Email)
       );
     }
 
@@ -66,7 +68,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
             ))
       );
     }
-    if (props.currentUser.isApprover) {
+    if (props.currentUser?.isApprover) {
       if (selectedFilterUser !== "") {
         filtered = filtered.filter(
           (task) =>
@@ -92,17 +94,6 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
     setTaskData(filtered);
   };
 
-  // Automatically run filtering when filter states change
-  useEffect(() => {
-    filterTasks();
-  }, [
-    searchText,
-    selectedFilterUser,
-    selectedCategory,
-    selectedStatus,
-    allTaskData,
-  ]);
-
   // Fetch Tasks and Categories
   const handlerGetTasks = async (): Promise<void> => {
     let _arrTaskData: ITaskList;
@@ -126,6 +117,8 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
       Select:
         "*,Performer/Title,Performer/EMail,Author/Title,Author/EMail,Category/Title,Category/ID,Approver/Title,Approver/EMail,Recurrence/ID,Recurrence/Title",
       Expand: "Performer,Author,Category,Approver,Recurrence",
+      Orderby: "ID",
+      Orderbydecorasc: false,
     }).then((res: ITask[]) => {
       _arrTaskData = res.map((li: ITask) => {
         return {
@@ -155,11 +148,6 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
           Approver: li.Approver,
         };
       });
-      // if (!props.currentUser.isApprover) {
-      //   _arrTaskData = _arrTaskData.filter(
-      //     (li) => li.Approver?.EMail === props.currentUser.Email
-      //   );
-      // }
       setAllTaskData([..._arrTaskData]);
       setTaskData([..._arrTaskData]);
     });
@@ -202,6 +190,17 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
       });
     }
   };
+
+  // Automatically run filtering when filter states change
+  useEffect(() => {
+    filterTasks();
+  }, [
+    searchText,
+    selectedFilterUser,
+    selectedCategory,
+    selectedStatus,
+    allTaskData,
+  ]);
   // Component Lifecycle: Fetch tasks on mount and refetch when modal or delete popup closes
   useEffect(() => {
     handlerGetTasks().catch((err) => {
@@ -258,7 +257,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
             style={{ width: 200 }}
             context={props.context}
             label={`${
-              props.currentUser.isApprover ? "Performer" : "Allocator"
+              props.currentUser?.isApprover ? "Performer" : "Allocator"
             } `}
             selectedItems={[]}
             onChange={(e: any) => {
@@ -266,12 +265,12 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
               setSelectedFilterUser(selected);
             }}
             placeholder={
-              props.currentUser.isApprover ? "Performer" : "Allocator"
+              props.currentUser?.isApprover ? "Performer" : "Allocator"
             }
           />
           <InputText
             style={{ width: 200 }}
-            placeholder="Search..."
+            placeholder="Search"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
@@ -279,15 +278,13 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
             className={`pi pi-refresh ${styles.iconRefresh}`}
             onClick={handleRefresh}
           />
-          {props.currentUser.isApprover && (
-            <PrimaryBtn
-              label="New Task"
-              onClick={() => {
-                handlerModalVisibilty(true);
-                handlerModalProps("Add", 0);
-              }}
-            />
-          )}
+          <PrimaryBtn
+            label="New Task"
+            onClick={() => {
+              handlerModalVisibilty(true);
+              handlerModalProps("Add", 0);
+            }}
+          />
         </div>
       </div>
       <TabView className={styles.tabView}>
@@ -304,17 +301,35 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
                 />
               ))
             ) : (
-              <div className={styles.noTaskFound}>No tasks found</div>
+              <div className={styles.noDataContainer}>
+                <img
+                  src={require("../../assets/Images/no-data.svg")}
+                  alt="No tasks found"
+                  className={styles.noDataImage}
+                />
+                <p className={styles.noDataText}>No tasks found</p>
+              </div>
             )}
           </div>
         </TabPanel>
         <TabPanel header="List">
           <div className={styles.CardView}>
-            <TaskList
-              taskData={taskData}
-              handlerModalProps={handlerModalProps}
-              handlerDeleteModalProps={handlerDeleteModalProps}
-            />
+            {taskData.length > 0 ? (
+              <TaskList
+                taskData={taskData}
+                handlerModalProps={handlerModalProps}
+                handlerDeleteModalProps={handlerDeleteModalProps}
+              />
+            ) : (
+              <div className={styles.noDataContainer}>
+                <img
+                  src={require("../../assets/Images/no-data.svg")}
+                  alt="No tasks found"
+                  className={styles.noDataImage}
+                />
+                <p className={styles.noDataText}>No tasks found</p>
+              </div>
+            )}
           </div>
         </TabPanel>
       </TabView>

@@ -39,7 +39,7 @@ const statusStyleMap: { [key: string]: React.CSSProperties } = {
     borderRadius: "4px",
     fontWeight: 400,
   },
-  "Awaiting Approval": {
+  "Awaiting approval": {
     backgroundColor: "#FFF4E5",
     color: "#D97706",
     padding: "0.2rem 2rem",
@@ -117,7 +117,10 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
           >
             {task?.Status}
           </div>
-          <i className="pi pi-ellipsis-v" onClick={handleEllipsisClick} />
+          {(props.currentUser.isApprover ||
+            task?.Author.EMail === props.currentUser.Email) && (
+            <i className="pi pi-ellipsis-v" onClick={handleEllipsisClick} />
+          )}
           <CardOptions
             id={task?.ID ?? 0}
             visible={optionsVisible}
@@ -144,8 +147,8 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
           <Avatar
             image={`/_layouts/15/userphoto.aspx?size=S&username=${
               props.currentUser.isApprover
-                ? task?.Performer.EMail
-                : task?.Author.EMail
+                ? task?.Performer?.EMail
+                : task?.Author?.EMail
             }`}
           />
           {props.currentUser.isApprover
@@ -169,6 +172,7 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
           {new Date(task?.EndDate).toLocaleDateString()}
         </div>
       </div>
+      {/* Date Range */}
     </div>
   );
 };

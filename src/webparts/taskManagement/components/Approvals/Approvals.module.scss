@@ -1,30 +1,26 @@
-.tabView {
-    padding: 0.25rem 1rem;
-}
-
-.taskContainer {
+.approvalContainer {
     width: 100%;
-    .noTaskFound {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-    }
     .headerSection {
+        width: 100%;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0 1rem;
         h3 {
-            color: #40BE85;
             font-size: 1.2rem;
             font-weight: 600;
-            margin: 0;
         }
-        .filterSection {
+        .headerSectionTitle {
+            font-size: 20px;
+            font-weight: 600;
+            color: #40BE85;
+        }
+        .headerSectionFilter {
+            margin-left: auto;
             display: flex;
-            align-items: center;
-            gap: 1rem;
+            gap: 12px;
+            >div {
+                width: 200px;
+            }
             .iconRefresh {
                 background-color: #40BE85;
                 color: white;
@@ -38,18 +34,16 @@
             }
         }
     }
-    .CardView {
-        display: flex;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        gap: 0.8rem;
+    .approvalCardsSection {
         width: 100%;
-        height: calc(100vh - 308px);
-        overflow: auto;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
     }
 }
 
 .noDataContainer {
+    height: 20rem;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -69,6 +63,9 @@
     font-size: 1.2rem;
     color: #777;
 }
+
+
+/* Optional animation for added interaction */
 
 @keyframes pulse {
     0% {
