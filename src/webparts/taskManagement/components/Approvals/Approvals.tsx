@@ -74,7 +74,7 @@ const Approvals = (props: ApprovalsProps): JSX.Element => {
       setApprovalData([...arrApprovalData]);
     });
   };
-  const handerRender = (): void => {
+  const handlerRender = (): void => {
     setRender(true);
   };
   useEffect(() => {
@@ -145,31 +145,60 @@ const Approvals = (props: ApprovalsProps): JSX.Element => {
       <TabView>
         <TabPanel header="Pending">
           <div className={styles.approvalCardsSection}>
-            {filteredData
-              .filter((item) => item.Status === "Awaiting approval")
-              .map((item) => (
-                <ApprovalCard
-                  key={item.ID}
-                  item={item}
-                  handerRender={handerRender}
+            {filteredData.filter((item) => item.Status === "Awaiting approval")
+              .length > 0 ? (
+              filteredData
+                .filter((item) => item.Status === "Awaiting approval")
+                .map((item) => (
+                  <ApprovalCard
+                    key={item.ID}
+                    item={item}
+                    handlerRender={handlerRender}
+                  />
+                ))
+            ) : (
+              <div className={styles.noDataContainer}>
+                <img
+                  src={require("../../assets/Images/no-data.svg")}
+                  alt="No approvals"
+                  className={styles.noDataImage}
                 />
-              ))}
+                <p className={styles.noDataText}>
+                  There are currently no pending approvals.
+                </p>
+              </div>
+            )}
           </div>
         </TabPanel>
-        <TabPanel header="Approval completed">
+        <TabPanel header="Completed approvals">
           <div className={styles.approvalCardsSection}>
-            {filteredData
-              .filter(
-                (item) =>
-                  item.Status === "Approved" || item.Status === "Rejected"
-              )
-              .map((item) => (
-                <ApprovalCard
-                  key={item.ID}
-                  item={item}
-                  handerRender={handerRender}
+            {filteredData.filter(
+              (item) => item.Status === "Approved" || item.Status === "Rejected"
+            ).length > 0 ? (
+              filteredData
+                .filter(
+                  (item) =>
+                    item.Status === "Approved" || item.Status === "Rejected"
+                )
+                .map((item) => (
+                  <ApprovalCard
+                    key={item.ID}
+                    item={item}
+                    handlerRender={handlerRender}
+                  />
+                ))
+            ) : (
+              <div className={styles.noDataContainer}>
+                <img
+                  src={require("../../assets/Images/no-data.svg")}
+                  alt="No completed approvals"
+                  className={styles.noDataImage}
                 />
-              ))}
+                <p className={styles.noDataText}>
+                  There are currently no completed approvals.
+                </p>
+              </div>
+            )}
           </div>
         </TabPanel>
       </TabView>

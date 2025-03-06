@@ -6,7 +6,7 @@ import ApprovalModal from "../ApprovalModal/ApprovalModal";
 import { ITask } from "../../../../../Interface/interface";
 interface ApprovalCardProps {
   item: ITask;
-  handerRender: () => void;
+  handlerRender: () => void;
 }
 const statusStyleMap: { [key: string]: React.CSSProperties } = {
   Completed: {
@@ -31,13 +31,13 @@ const statusStyleMap: { [key: string]: React.CSSProperties } = {
 
 const ApprovalCard: React.FC<ApprovalCardProps> = ({
   item,
-  handerRender,
+  handlerRender,
 }): JSX.Element => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedAction, setSelectedAction] = useState("");
   const handlerModalToggle = (flag: boolean): void => {
     setIsModalVisible(flag);
-    handerRender();
+    handlerRender();
   };
   useEffect(() => {
     handlerModalToggle(false);
@@ -62,7 +62,11 @@ const ApprovalCard: React.FC<ApprovalCardProps> = ({
             </div>
           </div>
         </div>
-        <div className={styles.approvalCardBody}>{item?.TaskName}</div>
+        <div className={styles.approvalCardBody}>
+          <div className={styles.taskName}>{item?.TaskName}</div>
+          <div className={styles.taskCategory}>{item?.Category.name}</div>
+        </div>
+
         {/* Date Range */}
         <div className={styles.taskDateRange}>
           <div className={styles.taskStartDate}>

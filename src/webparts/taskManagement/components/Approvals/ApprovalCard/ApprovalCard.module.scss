@@ -27,8 +27,15 @@
         }
     }
     .approvalCardBody {
-        color: #7A847F !important;
-        font-weight: 600;
+        .taskName {
+            color: #7A847F !important;
+            font-weight: 600;
+        }
+        .taskCategory {
+            font-weight: 600;
+            color: #40BE85;
+            text-align: right;
+        }
     }
     .taskDateRange {
         display: flex;

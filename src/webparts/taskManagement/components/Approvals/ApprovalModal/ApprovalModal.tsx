@@ -63,9 +63,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({
         <DefaultButton
           label="No"
           onClick={() => {
-            handlerUpdateListItem().catch((err) => {
-              console.log(err);
-            });
+            handlerModalToggle(false);
           }}
         />
       </div>

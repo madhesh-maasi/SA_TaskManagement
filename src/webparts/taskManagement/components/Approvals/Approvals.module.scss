@@ -41,3 +41,40 @@
         gap: 6px;
     }
 }
+
+.noDataContainer {
+    height: 20rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+}
+
+.noDataImage {
+    max-width: 200px;
+    margin-bottom: 1rem;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+.noDataText {
+    font-size: 1.2rem;
+    color: #777;
+}
+
+
+/* Optional animation for added interaction */
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}

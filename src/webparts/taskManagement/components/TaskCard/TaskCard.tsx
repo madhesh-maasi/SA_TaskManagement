@@ -117,7 +117,10 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
           >
             {task?.Status}
           </div>
-          <i className="pi pi-ellipsis-v" onClick={handleEllipsisClick} />
+          {(props.currentUser.isApprover ||
+            task?.Author.EMail === props.currentUser.Email) && (
+            <i className="pi pi-ellipsis-v" onClick={handleEllipsisClick} />
+          )}
           <CardOptions
             id={task?.ID ?? 0}
             visible={optionsVisible}

@@ -51,7 +51,9 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
     if (!props.currentUser?.isApprover) {
       filtered = filtered.filter(
         (task) =>
-          task.Performer && task.Performer.EMail === props.currentUser.Email
+          (task.Performer &&
+            task.Performer.EMail === props.currentUser.Email) ||
+          (task.Author && task.Author.EMail === props.currentUser.Email)
       );
     }
 
@@ -91,17 +93,6 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
     }
     setTaskData(filtered);
   };
-
-  // Automatically run filtering when filter states change
-  useEffect(() => {
-    filterTasks();
-  }, [
-    searchText,
-    selectedFilterUser,
-    selectedCategory,
-    selectedStatus,
-    allTaskData,
-  ]);
 
   // Fetch Tasks and Categories
   const handlerGetTasks = async (): Promise<void> => {
@@ -199,6 +190,17 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
       });
     }
   };
+
+  // Automatically run filtering when filter states change
+  useEffect(() => {
+    filterTasks();
+  }, [
+    searchText,
+    selectedFilterUser,
+    selectedCategory,
+    selectedStatus,
+    allTaskData,
+  ]);
   // Component Lifecycle: Fetch tasks on mount and refetch when modal or delete popup closes
   useEffect(() => {
     handlerGetTasks().catch((err) => {
@@ -276,15 +278,13 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
             className={`pi pi-refresh ${styles.iconRefresh}`}
             onClick={handleRefresh}
           />
-          {props.currentUser?.isApprover && (
-            <PrimaryBtn
-              label="New Task"
-              onClick={() => {
-                handlerModalVisibilty(true);
-                handlerModalProps("Add", 0);
-              }}
-            />
-          )}
+          <PrimaryBtn
+            label="New Task"
+            onClick={() => {
+              handlerModalVisibilty(true);
+              handlerModalProps("Add", 0);
+            }}
+          />
         </div>
       </div>
       <TabView className={styles.tabView}>
@@ -301,17 +301,35 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
                 />
               ))
             ) : (
-              <div className={styles.noTaskFound}>No tasks found</div>
+              <div className={styles.noDataContainer}>
+                <img
+                  src={require("../../assets/Images/no-data.svg")}
+                  alt="No tasks found"
+                  className={styles.noDataImage}
+                />
+                <p className={styles.noDataText}>No tasks found</p>
+              </div>
             )}
           </div>
         </TabPanel>
         <TabPanel header="List">
           <div className={styles.CardView}>
-            <TaskList
-              taskData={taskData}
-              handlerModalProps={handlerModalProps}
-              handlerDeleteModalProps={handlerDeleteModalProps}
-            />
+            {taskData.length > 0 ? (
+              <TaskList
+                taskData={taskData}
+                handlerModalProps={handlerModalProps}
+                handlerDeleteModalProps={handlerDeleteModalProps}
+              />
+            ) : (
+              <div className={styles.noDataContainer}>
+                <img
+                  src={require("../../assets/Images/no-data.svg")}
+                  alt="No tasks found"
+                  className={styles.noDataImage}
+                />
+                <p className={styles.noDataText}>No tasks found</p>
+              </div>
+            )}
           </div>
         </TabPanel>
       </TabView>

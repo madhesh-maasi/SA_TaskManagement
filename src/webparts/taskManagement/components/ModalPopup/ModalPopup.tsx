@@ -54,6 +54,42 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
     },
   };
 
+  // Define a map of styles for each status
+  const statusStyleMap: { [key: string]: React.CSSProperties } = {
+    Completed: {
+      backgroundColor: "#D4EDDA", // light green
+      color: "#155724", // dark green
+      padding: "0.3em 0.6em",
+      borderRadius: "0.25rem",
+      fontWeight: 400,
+      cursor: "pointer",
+    },
+    "Awaiting approval": {
+      backgroundColor: "#FFF3CD", // light yellow
+      color: "#856404", // dark yellow
+      padding: "0.3em 0.6em",
+      borderRadius: "0.25rem",
+      fontWeight: 400,
+      cursor: "pointer",
+    },
+    Approved: {
+      backgroundColor: "#D1ECF1", // light blue
+      color: "#0C5460", // dark blue
+      padding: "0.3em 0.6em",
+      borderRadius: "0.25rem",
+      fontWeight: 400,
+      cursor: "pointer",
+    },
+    Rejected: {
+      backgroundColor: "#F8D7DA", // light red
+      color: "#721C24", // dark red
+      padding: "0.3em 0.6em",
+      borderRadius: "0.25rem",
+      fontWeight: 400,
+      cursor: "pointer",
+    },
+  };
+
   // Function to add item in SharePoint List Recurrence
   const handlerAddItemToConfig_Rec = async (reqJSON: any) => {
     await SpServices.SPAddItem({
@@ -114,7 +150,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
         message: "Please fill the values...",
       };
     }
-    if (!task.TaskName || task.TaskName === "") {
+    if (!task.TaskName || task.TaskName.trim() === "") {
       return {
         value: false,
         message: "Please fill the Task Name",
@@ -126,15 +162,41 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
         message: "Please select a category",
       };
     }
+    // Ensure Start Date and End Date are provided
+    if (!task.StartDate) {
+      return {
+        value: false,
+        message: "Start date is mandatory",
+      };
+    }
+    if (!task.EndDate) {
+      return {
+        value: false,
+        message: "End date is mandatory",
+      };
+    }
+    // If task is a recurrence task and we're adding a new task
     if (task.IsRecurrence && props.modalProps.type === "Add") {
-      if (!task.StartDate || !task.EndDate) {
+      if (!task.RecurrenceType || task.RecurrenceType.trim() === "") {
         return {
           value: false,
-          message: "Please select both start date and end date",
+          message: "Please select a recurrence type",
+        };
+      }
+      if (task.RecurrenceType === "Weekly" && !task.RecurrenceDay) {
+        return {
+          value: false,
+          message: "Please select a recurrence day for weekly recurrence",
+        };
+      }
+      if (task.RecurrenceType === "Monthly" && !task.RecurrenceDate) {
+        return {
+          value: false,
+          message: "Please select a recurrence date for monthly recurrence",
         };
       }
 
-      // Compare dates after stripping out the time portion.
+      // Compare dates after removing the time portion.
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const startDate = new Date(task.StartDate);
@@ -142,7 +204,6 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
       const endDate = new Date(task.EndDate);
       endDate.setHours(0, 0, 0, 0);
 
-      // Allow start date to be today and same as end date
       if (startDate < today) {
         return {
           value: false,
@@ -155,28 +216,24 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
           message: "Start date cannot be later than end date",
         };
       }
-
       // Additional recurrence validations
-      if (task.IsRecurrence) {
-        const diffMs = endDate.getTime() - startDate.getTime();
-        const diffDays = diffMs / (1000 * 60 * 60 * 24);
-        if (task.RecurrenceType === "Weekly" && diffDays < 7) {
-          return {
-            value: false,
-            message:
-              "For weekly recurrence, the duration must be at least 7 days",
-          };
-        }
-        if (task.RecurrenceType === "Monthly" && diffDays < 28) {
-          return {
-            value: false,
-            message:
-              "For monthly recurrence, the duration must be at least 28 days",
-          };
-        }
+      const diffMs = endDate.getTime() - startDate.getTime();
+      const diffDays = diffMs / (1000 * 60 * 60 * 24);
+      if (task.RecurrenceType === "Weekly" && diffDays < 7) {
+        return {
+          value: false,
+          message:
+            "For weekly recurrence, the duration must be at least 7 days",
+        };
+      }
+      if (task.RecurrenceType === "Monthly" && diffDays < 28) {
+        return {
+          value: false,
+          message:
+            "For monthly recurrence, the duration must be at least 28 days",
+        };
       }
     }
-
     if (!task.Performer || !task.Performer.EMail) {
       return {
         value: false,
@@ -262,14 +319,21 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
       }
       return;
     }
-    let lastTaskID = 0;
+    let lastTaskNumber = 0;
     await SpServices.SPReadItems({ Listname: Config.ListName.Tasks }).then(
-      (res) => {
-        lastTaskID = res && res.length > 0 ? res[res.length - 1].ID : 0;
+      (res: ITask[]) => {
+        res.forEach((task) => {
+          if (task.Title && task.Title.startsWith("T_")) {
+            const num = parseInt(task.Title.replace("T_", ""), 10);
+            if (!isNaN(num) && num > lastTaskNumber) {
+              lastTaskNumber = num;
+            }
+          }
+        });
       }
     );
-    const newTaskID = lastTaskID + 1;
-    const formattedID = newTaskID.toString().padStart(5, "0");
+    const newTaskNumber = lastTaskNumber + 1;
+    const formattedID = `T_${newTaskNumber.toString().padStart(5, "0")}`;
 
     // Calculate NextTaskDate if recurrence is applied
     let NextTaskDate: Date | null = null;
@@ -301,7 +365,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
     };
     // Prepare JSON for Task
     const requestTaskJSON = {
-      Title: `T_${formattedID}`,
+      Title: formattedID,
       TaskName: task.TaskName,
       TaskDescription: task.TaskDescription,
       CategoryId: task.Category?.code,
@@ -393,9 +457,10 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
               <label htmlFor="TaskName">Task Name</label>
               <InputText
                 disabled={
-                  !props.currentUser.isApprover ||
-                  taskData?.Status === "Completed" ||
-                  taskData?.Status === "Approved"
+                  props.modalProps.type === "Edit" &&
+                  ((props.currentUser.Id !== taskData?.Author?.ID &&
+                    !props.currentUser.isApprover) ||
+                    taskData?.Status !== "Yet to start")
                 }
                 id="TaskName"
                 value={taskData?.TaskName || ""}
@@ -411,9 +476,10 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
               <label htmlFor="Category">Category</label>
               <Dropdown
                 disabled={
-                  !props.currentUser.isApprover ||
-                  taskData?.Status === "Completed" ||
-                  taskData?.Status === "Approved"
+                  props.modalProps.type === "Edit" &&
+                  ((props.currentUser.Id !== taskData?.Author?.ID &&
+                    !props.currentUser.isApprover) ||
+                    taskData?.Status !== "Yet to start")
                 }
                 value={taskData?.Category || null}
                 onChange={(e) =>
@@ -428,9 +494,10 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
               <label htmlFor="AssignedTo">Assigned to</label>
               <CustomPeoplePicker
                 disabled={
-                  !props.currentUser.isApprover ||
-                  taskData?.Status === "Completed" ||
-                  taskData?.Status === "Approved"
+                  props.modalProps.type === "Edit" &&
+                  ((props.currentUser.Id !== taskData?.Author?.ID &&
+                    !props.currentUser.isApprover) ||
+                    taskData?.Status !== "Yet to start")
                 }
                 context={props.context}
                 selectedItem={
@@ -440,11 +507,13 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                   const value = item?.[0];
                   setTaskData({
                     ...taskData,
-                    Performer: {
-                      ID: value.id,
-                      Title: value.name,
-                      EMail: value.email,
-                    },
+                    Performer: value
+                      ? {
+                          ID: value.id,
+                          Title: value.name,
+                          EMail: value.email,
+                        }
+                      : null,
                   } as ITask);
                 }}
               />
@@ -457,9 +526,10 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
               <label htmlFor="Description">Description</label>
               <InputTextarea
                 disabled={
-                  !props.currentUser.isApprover ||
-                  taskData?.Status === "Completed" ||
-                  taskData?.Status === "Approved"
+                  props.modalProps.type === "Edit" &&
+                  ((props.currentUser.Id !== taskData?.Author?.ID &&
+                    !props.currentUser.isApprover) ||
+                    taskData?.Status !== "Yet to start")
                 }
                 value={taskData?.TaskDescription || ""}
                 rows={5}
@@ -481,9 +551,10 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
               <div className={styles.modalCheckbox}>
                 <Checkbox
                   disabled={
-                    !props.currentUser.isApprover ||
-                    taskData?.Status === "Completed" ||
-                    taskData?.Status === "Approved"
+                    props.modalProps.type === "Edit" &&
+                    ((props.currentUser.Id !== taskData?.Author?.ID &&
+                      !props.currentUser.isApprover) ||
+                      taskData?.Status !== "Yet to start")
                   }
                   inputId="isApproval"
                   name="Approval"
@@ -502,9 +573,10 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
               {taskData?.IsApproval && (
                 <CustomPeoplePicker
                   disabled={
-                    !props.currentUser.isApprover ||
-                    taskData?.Status === "Completed" ||
-                    taskData?.Status === "Approved"
+                    props.modalProps.type === "Edit" &&
+                    ((props.currentUser.Id !== taskData?.Author?.ID &&
+                      !props.currentUser.isApprover) ||
+                      taskData?.Status !== "Yet to start")
                   }
                   selectedItem={
                     taskData?.Approver ? [taskData.Approver.EMail] : []
@@ -533,9 +605,9 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                 <div className={styles.modalCheckbox}>
                   <Checkbox
                     disabled={
-                      !props.currentUser.isApprover ||
-                      taskData?.Status === "Completed" ||
-                      taskData?.Status === "Approved"
+                      (props.currentUser.Id !== taskData?.Author?.ID &&
+                        !props.currentUser.isApprover) ||
+                      taskData?.Status !== "Yet to start"
                     }
                     inputId="isReurrence"
                     name="Recurrence"
@@ -669,10 +741,10 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
               <label htmlFor={"startDate"}>{"Start Date"}</label>
               <InputText
                 disabled={
-                  !props.currentUser.isApprover ||
-                  taskData?.Status === "Completed" ||
-                  taskData?.Status === "Approved" ||
-                  (taskData?.IsRecurrence && props.modalProps.type === "Edit")
+                  props.modalProps.type === "Edit" &&
+                  ((props.currentUser.Id !== taskData?.Author?.ID &&
+                    !props.currentUser.isApprover) ||
+                    taskData?.Status !== "Yet to start")
                 }
                 id="startDate"
                 type="date"
@@ -693,10 +765,10 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
               <label htmlFor={"endDate"}>{"End Date"}</label>
               <InputText
                 disabled={
-                  !props.currentUser.isApprover ||
-                  taskData?.Status === "Completed" ||
-                  taskData?.Status === "Approved" ||
-                  (taskData?.IsRecurrence && props.modalProps.type === "Edit")
+                  props.modalProps.type === "Edit" &&
+                  ((props.currentUser.Id !== taskData?.Author?.ID &&
+                    !props.currentUser.isApprover) ||
+                    taskData?.Status !== "Yet to start")
                 }
                 id="endDate"
                 type="date"
@@ -722,6 +794,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                 <label htmlFor="Status">Status</label>
                 {taskData?.Status !== "Completed" &&
                 taskData?.Status !== "Approved" &&
+                taskData?.Status !== "Rejected" &&
                 taskData?.Status !== "Awaiting approval" ? (
                   <Dropdown
                     value={
@@ -739,7 +812,12 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                     placeholder=""
                   />
                 ) : (
-                  <div className={styles.taskStatus}>{taskData?.Status}</div>
+                  <div
+                    className={styles.taskStatus}
+                    style={statusStyleMap[taskData?.Status as string] || {}}
+                  >
+                    {taskData?.Status}
+                  </div>
                 )}
               </div>
             </div>

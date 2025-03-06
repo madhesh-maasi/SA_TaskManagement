@@ -40,10 +40,44 @@
     }
     .CardView {
         display: flex;
+        align-items: flex-start;
         flex-wrap: wrap;
         gap: 0.8rem;
         width: 100%;
         height: calc(100vh - 308px);
         overflow: auto;
+    }
+}
+
+.noDataContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+}
+
+.noDataImage {
+    max-width: 200px;
+    margin-bottom: 1rem;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+.noDataText {
+    font-size: 1.2rem;
+    color: #777;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
     }
 }
