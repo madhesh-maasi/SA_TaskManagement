@@ -8,14 +8,16 @@ import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { TabView, TabPanel } from "primereact/tabview";
 import PrimaryBtn from "../../../../Common/PrimaryButton/PrimaryBtn";
+import Loader from "../../../../Common/Loader/Loader";
+import { Toast } from "primereact/toast";
+import { sp } from "@pnp/sp/presets/all";
 import TaskCard from "../TaskCard/TaskCard";
 import TaskList from "../TaskList/TaskList";
 import styles from "./TaskContainer.module.scss";
 import CustomPeoplePicker from "../../../../Common/CustomPeoplePicker/CustomPeoplePicker";
 import ModalPopup from "../ModalPopup/ModalPopup";
 import DeletePopup from "../../../../Common/DeletePopup/DeletePopup";
-import { Toast } from "primereact/toast";
-import { sp } from "@pnp/sp/presets/all";
+
 interface TasksListProps {
   context: any;
   currentUser: {
@@ -42,7 +44,9 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
   const [selectedFilterUser, setSelectedFilterUser] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [statusChoices, setStatusChoices] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const toast = useRef<Toast>(null);
+
   // Filtering function
   const filterTasks = () => {
     let filtered = [...allTaskData];
@@ -96,6 +100,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
 
   // Fetch Tasks and Categories
   const handlerGetTasks = async (): Promise<void> => {
+    setIsLoading(true);
     let _arrTaskData: ITaskList;
     await SpServices.SPReadItems({
       Listname: Config.ListName.Category,
@@ -150,6 +155,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
       });
       setAllTaskData([..._arrTaskData]);
       setTaskData([..._arrTaskData]);
+      setIsLoading(false);
     });
   };
 
@@ -176,6 +182,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
     setSelectedStatus("");
     filterTasks();
   };
+
   const handleToast = (
     severity: "success" | "info" | "warn" | "error" | "secondary" | "contrast",
     summary: string,
@@ -287,52 +294,56 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
           />
         </div>
       </div>
-      <TabView className={styles.tabView}>
-        <TabPanel header="Card">
-          <div className={styles.CardView}>
-            {taskData.length > 0 ? (
-              taskData.map((task, i) => (
-                <TaskCard
-                  key={i}
-                  task={task}
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <TabView className={styles.tabView}>
+          <TabPanel header="Card">
+            <div className={styles.CardView}>
+              {taskData.length > 0 ? (
+                taskData.map((task, i) => (
+                  <TaskCard
+                    key={i}
+                    task={task}
+                    handlerModalProps={handlerModalProps}
+                    handlerDeleteModalProps={handlerDeleteModalProps}
+                    currentUser={props.currentUser}
+                  />
+                ))
+              ) : (
+                <div className={styles.noDataContainer}>
+                  <img
+                    src={require("../../assets/Images/no-data.svg")}
+                    alt="No tasks found"
+                    className={styles.noDataImage}
+                  />
+                  <p className={styles.noDataText}>No tasks found</p>
+                </div>
+              )}
+            </div>
+          </TabPanel>
+          <TabPanel header="List">
+            <div className={styles.CardView}>
+              {taskData.length > 0 ? (
+                <TaskList
+                  taskData={taskData}
                   handlerModalProps={handlerModalProps}
                   handlerDeleteModalProps={handlerDeleteModalProps}
-                  currentUser={props.currentUser}
                 />
-              ))
-            ) : (
-              <div className={styles.noDataContainer}>
-                <img
-                  src={require("../../assets/Images/no-data.svg")}
-                  alt="No tasks found"
-                  className={styles.noDataImage}
-                />
-                <p className={styles.noDataText}>No tasks found</p>
-              </div>
-            )}
-          </div>
-        </TabPanel>
-        <TabPanel header="List">
-          <div className={styles.CardView}>
-            {taskData.length > 0 ? (
-              <TaskList
-                taskData={taskData}
-                handlerModalProps={handlerModalProps}
-                handlerDeleteModalProps={handlerDeleteModalProps}
-              />
-            ) : (
-              <div className={styles.noDataContainer}>
-                <img
-                  src={require("../../assets/Images/no-data.svg")}
-                  alt="No tasks found"
-                  className={styles.noDataImage}
-                />
-                <p className={styles.noDataText}>No tasks found</p>
-              </div>
-            )}
-          </div>
-        </TabPanel>
-      </TabView>
+              ) : (
+                <div className={styles.noDataContainer}>
+                  <img
+                    src={require("../../assets/Images/no-data.svg")}
+                    alt="No tasks found"
+                    className={styles.noDataImage}
+                  />
+                  <p className={styles.noDataText}>No tasks found</p>
+                </div>
+              )}
+            </div>
+          </TabPanel>
+        </TabView>
+      )}
     </div>
   );
 };

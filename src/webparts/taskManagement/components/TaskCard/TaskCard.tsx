@@ -122,6 +122,16 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
             <i className="pi pi-ellipsis-v" onClick={handleEllipsisClick} />
           )}
           <CardOptions
+            isView={
+              task?.Status !== "Yet to start" &&
+              task?.Status !== "In Progress" &&
+              task?.Status !== "Overdue"
+            }
+            isDelete={
+              (props.currentUser.isApprover ||
+                task?.Author.EMail === props.currentUser.Email) &&
+              task?.Status !== "Yet to start"
+            }
             id={task?.ID ?? 0}
             visible={optionsVisible}
             onEdit={handleEdit}

@@ -4,12 +4,16 @@ import styles from "./CardOptions.module.scss";
 export interface CardOptionsProps {
   id: number;
   visible: boolean;
+  isDelete: boolean;
+  isView: boolean;
   onEdit: () => void;
   onDelete: () => void;
 }
 
 const CardOptions: React.FC<CardOptionsProps> = ({
   visible,
+  isDelete,
+  isView,
   onEdit,
   onDelete,
 }) => {
@@ -21,11 +25,16 @@ const CardOptions: React.FC<CardOptionsProps> = ({
     >
       <ul className={styles.cardOptions}>
         <li className={`${styles.option} ${styles.edit}`} onClick={onEdit}>
-          Edit
+          {isView ? "View" : "Edit"}
         </li>
-        <li className={`${styles.option} ${styles.delete}`} onClick={onDelete}>
-          Delete
-        </li>
+        {!isDelete && (
+          <li
+            className={`${styles.option} ${styles.delete}`}
+            onClick={onDelete}
+          >
+            Delete
+          </li>
+        )}
       </ul>
     </div>
   );
