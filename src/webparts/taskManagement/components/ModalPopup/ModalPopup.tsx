@@ -162,6 +162,13 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
         message: "Please select a category",
       };
     }
+    // Make Description mandatory
+    if (!task.TaskDescription || task.TaskDescription.trim() === "") {
+      return {
+        value: false,
+        message: "Please fill the Description",
+      };
+    }
     // Ensure Start Date and End Date are provided
     if (!task.StartDate) {
       return {
@@ -175,7 +182,30 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
         message: "End date is mandatory",
       };
     }
-    // If task is a recurrence task and we're adding a new task
+
+    // Remove time portion for accurate date comparison
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const startDate = new Date(task.StartDate);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(task.EndDate);
+    endDate.setHours(0, 0, 0, 0);
+
+    // Updated validation: start date must be greater than or equal to today
+    if (startDate < today) {
+      return {
+        value: false,
+        message: "Start date must be greater than or equal to today",
+      };
+    }
+    if (endDate <= startDate) {
+      return {
+        value: false,
+        message: "End date must be greater than start date",
+      };
+    }
+
+    // For recurrence tasks being added, add extra validations
     if (task.IsRecurrence && props.modalProps.type === "Add") {
       if (!task.RecurrenceType || task.RecurrenceType.trim() === "") {
         return {
@@ -193,27 +223,6 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
         return {
           value: false,
           message: "Please select a recurrence date for monthly recurrence",
-        };
-      }
-
-      // Compare dates after removing the time portion.
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const startDate = new Date(task.StartDate);
-      startDate.setHours(0, 0, 0, 0);
-      const endDate = new Date(task.EndDate);
-      endDate.setHours(0, 0, 0, 0);
-
-      if (startDate < today) {
-        return {
-          value: false,
-          message: "Start date cannot be in the past",
-        };
-      }
-      if (startDate > endDate) {
-        return {
-          value: false,
-          message: "Start date cannot be later than end date",
         };
       }
       // Additional recurrence validations
@@ -234,6 +243,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
         };
       }
     }
+
     if (!task.Performer || !task.Performer.EMail) {
       return {
         value: false,
@@ -604,11 +614,6 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
               <div className={styles.col4}>
                 <div className={styles.modalCheckbox}>
                   <Checkbox
-                    disabled={
-                      (props.currentUser.Id !== taskData?.Author?.ID &&
-                        !props.currentUser.isApprover) ||
-                      taskData?.Status !== "Yet to start"
-                    }
                     inputId="isReurrence"
                     name="Recurrence"
                     value={[]}
@@ -747,10 +752,11 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                     taskData?.Status !== "Yet to start")
                 }
                 id="startDate"
+                // Change to a text input if you want to display "MM/DD/YYYY" format
                 type="date"
                 value={
                   taskData?.StartDate
-                    ? new Date(taskData.StartDate).toISOString().slice(0, 10)
+                    ? new Date(taskData.StartDate).toLocaleDateString("en-CA")
                     : ""
                 }
                 onChange={(e) => {
@@ -771,10 +777,11 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                     taskData?.Status !== "Yet to start")
                 }
                 id="endDate"
+                // Change to a text input so that the value is shown as "MM/DD/YYYY"
                 type="date"
                 value={
                   taskData?.EndDate
-                    ? new Date(taskData.EndDate).toISOString().slice(0, 10)
+                    ? new Date(taskData.EndDate).toLocaleDateString("en-CA")
                     : ""
                 }
                 onChange={(e) => {

@@ -59,7 +59,7 @@ const TaskManagement = ({ context }: ITaskManagementProps): JSX.Element => {
   return (
     <div className={styles.Container}>
       <HashRouter>
-        {currentUser?.isApprover && <LeftNav currentUser={currentUser} />}
+        <LeftNav currentUser={currentUser} />
         <Routes>
           <Route
             path="/task"
