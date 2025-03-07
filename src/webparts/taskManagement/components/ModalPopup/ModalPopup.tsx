@@ -13,6 +13,7 @@ import { ITask } from "../../../../Interface/interface";
 import { Config } from "../../../../Config/config";
 import SpServices from "../../../../Services/SPServices/SpServices";
 import { Toast } from "primereact/toast";
+import Loader from "../../../../Common/Loader/Loader";
 interface ModalPopupProps {
   modalProps: {
     type: string;
@@ -36,17 +37,19 @@ interface ModalPopupProps {
 const ModalPopup = (props: ModalPopupProps): JSX.Element => {
   const [taskData, setTaskData] = useState<ITask | null>(null);
   const [updatedStatus, setUpdatedStatus] = useState<string>("");
+  const [isLoader, setLoader] = useState(false);
   const toast = useRef<Toast>(null);
 
-  // Define a recurrence style map
+  // Updated recurrence style map
   const recurrenceStyleMap: { [key: string]: React.CSSProperties } = {
     Daily: {
       backgroundColor: "#E6F7FF",
       color: "#007ACC",
     },
     Weekly: {
-      backgroundColor: "#FFF4CC",
-      color: "#D89500",
+      background: "#fceeeb", // Interactive gradient for Weekly
+      color: "#FF7E5F",
+      transition: "transform 0.2s ease-in-out",
     },
     Monthly: {
       backgroundColor: "#E6FFED",
@@ -103,7 +106,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
         props.handleToast(
           "success",
           "Success",
-          "Recurrence added successfully, Will add task soon"
+          "Recurrence added successfully. The task will be added soon"
         );
       })
       .catch((error) => {
@@ -162,6 +165,13 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
         message: "Please select a category",
       };
     }
+
+    if (!task.Performer || !task.Performer.EMail) {
+      return {
+        value: false,
+        message: "Please select an assignee",
+      };
+    }
     // Make Description mandatory
     if (!task.TaskDescription || task.TaskDescription.trim() === "") {
       return {
@@ -169,18 +179,14 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
         message: "Please fill the Description",
       };
     }
-    // Ensure Start Date and End Date are provided
-    if (!task.StartDate) {
-      return {
-        value: false,
-        message: "Start date is mandatory",
-      };
-    }
-    if (!task.EndDate) {
-      return {
-        value: false,
-        message: "End date is mandatory",
-      };
+
+    if (task.IsApproval) {
+      if (!task.Approver || !task.Approver.EMail) {
+        return {
+          value: false,
+          message: "Please select an approver",
+        };
+      }
     }
 
     // Remove time portion for accurate date comparison
@@ -190,20 +196,6 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
     startDate.setHours(0, 0, 0, 0);
     const endDate = new Date(task.EndDate);
     endDate.setHours(0, 0, 0, 0);
-
-    // Updated validation: start date must be greater than or equal to today
-    if (startDate < today) {
-      return {
-        value: false,
-        message: "Start date must be greater than or equal to today",
-      };
-    }
-    if (endDate <= startDate) {
-      return {
-        value: false,
-        message: "End date must be greater than start date",
-      };
-    }
 
     // For recurrence tasks being added, add extra validations
     if (task.IsRecurrence && props.modalProps.type === "Add") {
@@ -244,18 +236,35 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
       }
     }
 
-    if (!task.Performer || !task.Performer.EMail) {
+    // Updated validation: start date must be greater than or equal to today
+    if (startDate < today) {
       return {
         value: false,
-        message: "Please select an assignee",
+        message: "The start date must be today or a future date",
       };
     }
-    if (task.IsApproval && (!task.Approver || !task.Approver.EMail)) {
+    // Ensure Start Date and End Date are provided
+    if (!task.StartDate) {
       return {
         value: false,
-        message: "Please select an approver",
+        message: "Start date is mandatory",
       };
     }
+    if (!task.EndDate) {
+      return {
+        value: false,
+        message: "End date is mandatory",
+      };
+    }
+
+    // Updated validation: end date must be greater than or equal to start date
+    if (endDate < startDate) {
+      return {
+        value: false,
+        message: "The end date must be later or greater than the start date",
+      };
+    }
+
     return {
       value: true,
       message: "",
@@ -272,6 +281,8 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
     // Remove time portion from start date
     const startWithoutTime = new Date(start);
     startWithoutTime.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     if (recurrenceType === "Weekly" && recurrenceDay) {
       const dayMap: { [key: string]: number } = {
@@ -290,22 +301,56 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
       while (result.getDay() !== targetDay) {
         result.setDate(result.getDate() + 1);
       }
-      // If result equals the start date, then go to next week
-      if (result.getTime() === startWithoutTime.getTime()) {
+      // If the computed day is before today, keep adding weeks until it's not before today.
+      while (result < today) {
         result.setDate(result.getDate() + 7);
+      }
+      // If the result equals today, return today.
+      if (result.getTime() === today.getTime()) {
+        return today;
       }
       return result;
     } else if (recurrenceType === "Monthly" && recurrenceDate) {
-      const result = new Date(startWithoutTime);
-      result.setMonth(result.getMonth() + 1);
-      result.setDate(recurrenceDate);
-      return result;
-    } else if (recurrenceType === "Daily") {
+      // Get today's date with time removed
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      // If the task is created for today, do not add an extra day.
+      // Create candidate date for the current month
+      const candidate = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        recurrenceDate
+      );
+      // If candidate equals today, return today
+      if (
+        candidate.getDate() === today.getDate() &&
+        candidate.getMonth() === today.getMonth() &&
+        candidate.getFullYear() === today.getFullYear()
+      ) {
+        return today;
+      }
+      // If candidate is after today, return candidate, otherwise get next month's candidate
+      if (candidate >= today) {
+        return candidate;
+      } else {
+        const nextCandidate = new Date(
+          today.getFullYear(),
+          today.getMonth() + 1,
+          recurrenceDate
+        );
+        // If nextCandidate equals today (edge-case), return today
+        if (
+          nextCandidate.getDate() === today.getDate() &&
+          nextCandidate.getMonth() === today.getMonth() &&
+          nextCandidate.getFullYear() === today.getFullYear()
+        ) {
+          return today;
+        }
+        return nextCandidate;
+      }
+    } else if (recurrenceType === "Daily") {
+      // For daily recurrence, if the start day is today, return today; otherwise, next day.
       if (startWithoutTime.getTime() === today.getTime()) {
-        return startWithoutTime;
+        return today;
       } else {
         const result = new Date(startWithoutTime);
         result.setDate(result.getDate() + 1);
@@ -372,10 +417,11 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
       TaskDescription: task.TaskDescription,
       CategoryId: task.Category?.code,
       NextTaskDate: NextTaskDate, // Now NextTaskDate is computed + 1 day
+      AllocatorId: props.currentUser.Id,
     };
     // Prepare JSON for Task
     const requestTaskJSON = {
-      Title: formattedID,
+      Title: props.modalProps.type === "Edit" ? task.Title : formattedID,
       TaskName: task.TaskName,
       TaskDescription: task.TaskDescription,
       CategoryId: task.Category?.code,
@@ -388,6 +434,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
       CustomerNo: task.CustomerNo,
       PerformerComments: task.PerformerComments,
       ApprovalComments: task.ApprovalComments,
+      AllocatorId: props.currentUser.Id,
       Status:
         updatedStatus !== ""
           ? updatedStatus === "Completed" && task.IsApproval
@@ -416,7 +463,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
   // Function to get Recurrence Info
   const handlerGetRecurrenceInfo = async (): Promise<void> => {
     if (taskData?.IsRecurrence) {
-      SpServices.SPReadItemUsingId({
+      await SpServices.SPReadItemUsingId({
         Listname: "Config_Recurrence",
         SelectedId: taskData?.Recurrence?.ID,
         Select: "*",
@@ -442,17 +489,42 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
     });
   }, [taskData?.IsRecurrence]);
   useEffect(() => {
+    setLoader(true);
     setTaskData(
       props.modalProps.type === "Edit"
         ? (props.modalProps.selectedValue as ITask)
         : null
     );
+    setLoader(false);
   }, [props.showModal, props.modalProps]);
+
+  const isFieldDisabled = (): boolean => {
+    // Once completed, approved, or rejected, disable editing
+    if (
+      taskData?.Status === "Completed" ||
+      taskData?.Status === "Approved" ||
+      taskData?.Status === "Rejected" ||
+      taskData?.Status === "Awaiting approval"
+    ) {
+      return true;
+    }
+    // Otherwise, in edit mode, allow editing only if:
+    // - the current user is the creator (Allocator) OR
+    // - the current user is an approver and task status is "Yet to start"
+    return (
+      props.modalProps.type === "Edit" &&
+      !(
+        props.currentUser.Email === taskData?.Allocator?.EMail ||
+        (props.currentUser.isApprover && taskData?.Status === "Yet to start")
+      )
+    );
+  };
 
   return (
     <div>
       <Toast ref={toast} />
       <Dialog
+        draggable={false}
         header={`${props.modalProps.type === "Edit" ? "Update" : "Add"} Task`}
         visible={props.showModal}
         style={{ width: "50vw" }}
@@ -460,256 +532,239 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
           props.handlerModalVisibilty(false);
         }}
       >
-        <div className={styles.modalContent}>
-          {/* Row */}
-          <div className={styles.row}>
-            <div className={styles.col4}>
-              <label htmlFor="TaskName">Task Name</label>
-              <InputText
-                disabled={
-                  props.modalProps.type === "Edit" &&
-                  ((props.currentUser.Id !== taskData?.Author?.ID &&
-                    !props.currentUser.isApprover) ||
-                    taskData?.Status !== "Yet to start")
-                }
-                id="TaskName"
-                value={taskData?.TaskName || ""}
-                onChange={(e) => {
-                  setTaskData({
-                    ...taskData,
-                    TaskName: e.target.value,
-                  } as ITask);
-                }}
-              />
-            </div>
-            <div className={styles.col4}>
-              <label htmlFor="Category">Category</label>
-              <Dropdown
-                disabled={
-                  props.modalProps.type === "Edit" &&
-                  ((props.currentUser.Id !== taskData?.Author?.ID &&
-                    !props.currentUser.isApprover) ||
-                    taskData?.Status !== "Yet to start")
-                }
-                value={taskData?.Category || null}
-                onChange={(e) =>
-                  setTaskData({ ...taskData, Category: e.value } as ITask)
-                }
-                options={props.categoryValues}
-                optionLabel="name"
-                placeholder=""
-              />
-            </div>
-            <div className={styles.col4}>
-              <label htmlFor="AssignedTo">Assigned to</label>
-              <CustomPeoplePicker
-                disabled={
-                  props.modalProps.type === "Edit" &&
-                  ((props.currentUser.Id !== taskData?.Author?.ID &&
-                    !props.currentUser.isApprover) ||
-                    taskData?.Status !== "Yet to start")
-                }
-                context={props.context}
-                selectedItem={
-                  taskData?.Performer ? [taskData.Performer.EMail] : []
-                }
-                onChange={(item: any) => {
-                  const value = item?.[0];
-                  setTaskData({
-                    ...taskData,
-                    Performer: value
-                      ? {
-                          ID: value.id,
-                          Title: value.name,
-                          EMail: value.email,
-                        }
-                      : null,
-                  } as ITask);
-                }}
-              />
-            </div>
-          </div>
-          {/* Row */}
-          {/* Row */}
-          <div className={styles.row}>
-            <div className={styles.col12}>
-              <label htmlFor="Description">Description</label>
-              <InputTextarea
-                disabled={
-                  props.modalProps.type === "Edit" &&
-                  ((props.currentUser.Id !== taskData?.Author?.ID &&
-                    !props.currentUser.isApprover) ||
-                    taskData?.Status !== "Yet to start")
-                }
-                value={taskData?.TaskDescription || ""}
-                rows={5}
-                cols={30}
-                id="Description"
-                onChange={(e) =>
-                  setTaskData({
-                    ...taskData,
-                    TaskDescription: e.target.value,
-                  } as ITask)
-                }
-              />
-            </div>
-          </div>
-          {/* Row */}
-          {/* Row */}
-          <div className={styles.row}>
-            <div className={styles.col4}>
-              <div className={styles.modalCheckbox}>
-                <Checkbox
-                  disabled={
-                    props.modalProps.type === "Edit" &&
-                    ((props.currentUser.Id !== taskData?.Author?.ID &&
-                      !props.currentUser.isApprover) ||
-                      taskData?.Status !== "Yet to start")
-                  }
-                  inputId="isApproval"
-                  name="Approval"
-                  onChange={(e) =>
+        {isLoader ? (
+          <Loader />
+        ) : (
+          <div className={styles.modalContent}>
+            {/* Row */}
+            <div className={styles.row}>
+              <div className={styles.col4}>
+                <label htmlFor="TaskName">Task Name</label>
+                <InputText
+                  placeholder="Task Name"
+                  disabled={isFieldDisabled()}
+                  id="TaskName"
+                  value={taskData?.TaskName || ""}
+                  onChange={(e) => {
                     setTaskData({
                       ...taskData,
-                      IsApproval: e.target.checked,
-                    } as ITask)
-                  }
-                  checked={taskData?.IsApproval ? taskData?.IsApproval : false}
-                />
-                <label htmlFor={"isApproval"}>{"Is Approval Required"}</label>
-              </div>
-            </div>
-            <div className={styles.col4}>
-              {taskData?.IsApproval && (
-                <CustomPeoplePicker
-                  disabled={
-                    props.modalProps.type === "Edit" &&
-                    ((props.currentUser.Id !== taskData?.Author?.ID &&
-                      !props.currentUser.isApprover) ||
-                      taskData?.Status !== "Yet to start")
-                  }
-                  selectedItem={
-                    taskData?.Approver ? [taskData.Approver.EMail] : []
-                  }
-                  context={props.context}
-                  onChange={(item: any) => {
-                    let value = item?.[0];
-                    setTaskData({
-                      ...taskData,
-                      Approver: {
-                        ID: value.id,
-                        Title: value.name,
-                        EMail: value.email,
-                      },
+                      TaskName: e.target.value,
                     } as ITask);
                   }}
                 />
-              )}
+              </div>
+              <div className={styles.col4}>
+                <label htmlFor="Category">Category</label>
+                <Dropdown
+                  placeholder="Category"
+                  disabled={isFieldDisabled()}
+                  value={taskData?.Category || null}
+                  onChange={(e) =>
+                    setTaskData({ ...taskData, Category: e.value } as ITask)
+                  }
+                  options={props.categoryValues}
+                  optionLabel="name"
+                />
+              </div>
+              <div className={styles.col4}>
+                <label htmlFor="AssignedTo">Assigned to</label>
+                <CustomPeoplePicker
+                  placeholder="Performer"
+                  disabled={isFieldDisabled()}
+                  context={props.context}
+                  selectedItem={
+                    taskData?.Performer ? [taskData.Performer.EMail] : []
+                  }
+                  onChange={(item: any) => {
+                    const value = item?.[0];
+                    setTaskData({
+                      ...taskData,
+                      Performer: value
+                        ? {
+                            ID: value.id,
+                            Title: value.name,
+                            EMail: value.email,
+                          }
+                        : null,
+                    } as ITask);
+                  }}
+                />
+              </div>
             </div>
-          </div>
-          {/* Row */}
-          {/* Row */}
-          {props.modalProps.type === "Add" ? (
+            {/* Row */}
+            {/* Row */}
+            <div className={styles.row}>
+              <div className={styles.col12}>
+                <label htmlFor="Description">Description</label>
+                <InputTextarea
+                  placeholder="Description"
+                  style={{ resize: "none" }}
+                  disabled={isFieldDisabled()}
+                  value={taskData?.TaskDescription || ""}
+                  rows={5}
+                  cols={30}
+                  id="Description"
+                  onChange={(e) =>
+                    setTaskData({
+                      ...taskData,
+                      TaskDescription: e.target.value,
+                    } as ITask)
+                  }
+                />
+              </div>
+            </div>
+            {/* Row */}
+            {/* Row */}
             <div className={styles.row}>
               <div className={styles.col4}>
                 <div className={styles.modalCheckbox}>
                   <Checkbox
-                    inputId="isReurrence"
-                    name="Recurrence"
-                    value={[]}
+                    disabled={isFieldDisabled()}
+                    inputId="isApproval"
+                    name="Approval"
                     onChange={(e) =>
                       setTaskData({
                         ...taskData,
-                        IsRecurrence: e.target.checked,
+                        IsApproval: e.target.checked,
                       } as ITask)
                     }
                     checked={
-                      taskData?.IsRecurrence ? taskData?.IsRecurrence : false
+                      taskData?.IsApproval ? taskData?.IsApproval : false
                     }
                   />
-                  <label htmlFor={"isReurrence"}>{"Is Recurrence Task"}</label>
+                  <label htmlFor={"isApproval"}>{"Is Approval Required"}</label>
                 </div>
               </div>
-              {taskData?.IsRecurrence && (
-                <>
-                  <div className={styles.col4}>
-                    <Dropdown
-                      value={taskData?.RecurrenceType || null}
+              <div className={styles.col4}>
+                {taskData?.IsApproval && (
+                  <CustomPeoplePicker
+                    groupName="Approvers"
+                    placeholder="Approver"
+                    disabled={isFieldDisabled()}
+                    selectedItem={
+                      taskData?.Approver ? [taskData.Approver.EMail] : []
+                    }
+                    context={props.context}
+                    onChange={(item: any) => {
+                      let value = item?.[0];
+                      setTaskData({
+                        ...taskData,
+                        Approver: {
+                          ID: value ? value.id : "",
+                          Title: value ? value.name : "",
+                          EMail: value ? value.email : "",
+                        },
+                      } as ITask);
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+            {/* Row */}
+            {/* Row */}
+            {props.modalProps.type === "Add" ? (
+              <div className={styles.row}>
+                <div className={styles.col4}>
+                  <div className={styles.modalCheckbox}>
+                    <Checkbox
+                      inputId="isReurrence"
+                      name="Recurrence"
+                      value={[]}
                       onChange={(e) =>
                         setTaskData({
                           ...taskData,
-                          RecurrenceType: e.value,
-                          ID: taskData?.ID || "",
+                          IsRecurrence: e.target.checked,
                         } as ITask)
                       }
-                      options={[...Config.RecurrenceType]}
-                      placeholder="Type"
+                      checked={
+                        taskData?.IsRecurrence ? taskData?.IsRecurrence : false
+                      }
                     />
+                    <label htmlFor={"isReurrence"}>
+                      {"Is Recurrence Task"}
+                    </label>
                   </div>
-                  {taskData?.RecurrenceType === "Weekly" ||
-                  taskData?.RecurrenceType === "Monthly" ? (
+                </div>
+                {taskData?.IsRecurrence && (
+                  <>
                     <div className={styles.col4}>
                       <Dropdown
-                        value={
-                          taskData?.RecurrenceType === "Weekly"
-                            ? taskData?.RecurrenceDay
-                            : taskData?.RecurrenceDate || null
-                        }
-                        onChange={(e) => {
+                        value={taskData?.RecurrenceType || null}
+                        onChange={(e) =>
                           setTaskData({
                             ...taskData,
-                            RecurrenceDay:
-                              taskData?.RecurrenceType === "Weekly"
-                                ? e.value
-                                : taskData?.RecurrenceDay,
-                            RecurrenceDate:
-                              taskData?.RecurrenceType === "Monthly"
-                                ? e.value
-                                : taskData?.RecurrenceDate,
-                          } as ITask);
-                        }}
-                        options={
-                          taskData?.RecurrenceType === "Weekly"
-                            ? Config.Days
-                            : Config.Dates
+                            RecurrenceType: e.value,
+                            ID: taskData?.ID || "",
+                          } as ITask)
                         }
-                        optionLabel="name"
-                        placeholder="Recurrence Type"
+                        options={[...Config.RecurrenceType]}
+                        placeholder="Type"
                       />
                     </div>
-                  ) : (
-                    ""
-                  )}
-                </>
-              )}
-            </div>
-          ) : taskData?.IsRecurrence ? (
-            <div
-              className={styles.pillContainer}
-              style={recurrenceStyleMap[taskData?.RecurrenceType ?? ""] || {}}
-            >
-              <span className={styles.pillLabel}>Recurrence Type:</span>
-              <span className={styles.pillValue}>
-                {taskData?.RecurrenceType}
-              </span>
-              {taskData.RecurrenceType !== "Daily" && (
-                <>
-                  <span className={styles.pillLabel}>
-                    {taskData?.RecurrenceType === "Weekly" ? "Day:" : "Date:"}
-                  </span>
-                  <span className={styles.pillValue}>
-                    {taskData?.RecurrenceType === "Weekly"
-                      ? taskData?.RecurrenceDay
-                      : taskData?.RecurrenceDate}
-                  </span>
-                </>
-              )}
-            </div>
-          ) : null}
+                    {taskData?.RecurrenceType === "Weekly" ||
+                    taskData?.RecurrenceType === "Monthly" ? (
+                      <div className={styles.col4}>
+                        <Dropdown
+                          value={
+                            taskData?.RecurrenceType === "Weekly"
+                              ? taskData?.RecurrenceDay
+                              : taskData?.RecurrenceDate || null
+                          }
+                          onChange={(e) => {
+                            setTaskData({
+                              ...taskData,
+                              RecurrenceDay:
+                                taskData?.RecurrenceType === "Weekly"
+                                  ? e.value
+                                  : taskData?.RecurrenceDay,
+                              RecurrenceDate:
+                                taskData?.RecurrenceType === "Monthly"
+                                  ? e.value
+                                  : taskData?.RecurrenceDate,
+                            } as ITask);
+                          }}
+                          options={
+                            taskData?.RecurrenceType === "Weekly"
+                              ? Config.Days
+                              : Config.Dates
+                          }
+                          optionLabel="name"
+                          placeholder="Recurrence Type"
+                        />
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                  </>
+                )}
+              </div>
+            ) : taskData?.IsRecurrence ? (
+              <div
+                className={styles.pillContainer}
+                style={recurrenceStyleMap[taskData?.RecurrenceType ?? ""] || {}}
+              >
+                <span className={styles.pillLabel}>Recurrence Type:</span>
+                <span className={styles.pillValue}>
+                  {taskData?.RecurrenceType}
+                </span>
+                {taskData.RecurrenceType !== "Daily" && (
+                  <>
+                    <span className={styles.pillLabel}>
+                      {taskData?.RecurrenceType === "Weekly" ? "Day:" : "Date:"}
+                    </span>
+                    <span className={styles.pillValue}>
+                      {taskData?.RecurrenceType === "Weekly"
+                        ? taskData?.RecurrenceDay
+                        : taskData?.RecurrenceDate}
+                    </span>
+                  </>
+                )}
+              </div>
+            ) : null}
 
-          {/* Row */}
-          {/* Row Customer Section*/}
-          {/* <div className={styles.row}>
+            {/* Row */}
+            {/* Row Customer Section*/}
+            {/* <div className={styles.row}>
             <div className={styles.col4}>
               <div className={styles.modalCheckbox}>
                 <Checkbox
@@ -739,120 +794,113 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
               )}
             </div>
           </div> */}
-          {/* Row Customer Section*/}
-          {/* Row */}
-          <div className={styles.row}>
-            <div className={styles.col4}>
-              <label htmlFor={"startDate"}>{"Start Date"}</label>
-              <InputText
-                disabled={
-                  props.modalProps.type === "Edit" &&
-                  ((props.currentUser.Id !== taskData?.Author?.ID &&
-                    !props.currentUser.isApprover) ||
-                    taskData?.Status !== "Yet to start")
-                }
-                id="startDate"
-                // Change to a text input if you want to display "MM/DD/YYYY" format
-                type="date"
-                value={
-                  taskData?.StartDate
-                    ? new Date(taskData.StartDate).toLocaleDateString("en-CA")
-                    : ""
-                }
-                onChange={(e) => {
-                  setTaskData({
-                    ...taskData,
-                    StartDate: e.target.value,
-                  } as ITask);
-                }}
-              />
-            </div>
-            <div className={styles.col4}>
-              <label htmlFor={"endDate"}>{"End Date"}</label>
-              <InputText
-                disabled={
-                  props.modalProps.type === "Edit" &&
-                  ((props.currentUser.Id !== taskData?.Author?.ID &&
-                    !props.currentUser.isApprover) ||
-                    taskData?.Status !== "Yet to start")
-                }
-                id="endDate"
-                // Change to a text input so that the value is shown as "MM/DD/YYYY"
-                type="date"
-                value={
-                  taskData?.EndDate
-                    ? new Date(taskData.EndDate).toLocaleDateString("en-CA")
-                    : ""
-                }
-                onChange={(e) => {
-                  setTaskData({
-                    ...taskData,
-                    EndDate: e.target.value,
-                  } as ITask);
-                }}
-              />
-            </div>
-          </div>
-          {/* Row */}
-          {/* Footer Button section */}
-          {props.modalProps.type === "Edit" && (
+            {/* Row Customer Section*/}
+            {/* Row */}
             <div className={styles.row}>
               <div className={styles.col4}>
-                <label htmlFor="Status">Status</label>
-                {taskData?.Status !== "Completed" &&
-                taskData?.Status !== "Approved" &&
-                taskData?.Status !== "Rejected" &&
-                taskData?.Status !== "Awaiting approval" ? (
-                  <Dropdown
-                    value={
-                      updatedStatus === ""
-                        ? taskData?.Status || ""
-                        : updatedStatus
-                    }
-                    onChange={(e) => setUpdatedStatus(e.value as string)}
-                    options={
-                      taskData?.Status === "In Progress"
-                        ? ["In Progress", "Completed"]
-                        : ["Yet to start", "In Progress", "Completed"]
-                    }
-                    optionLabel="name"
-                    placeholder=""
-                  />
-                ) : (
-                  <div
-                    className={styles.taskStatus}
-                    style={statusStyleMap[taskData?.Status as string] || {}}
-                  >
-                    {taskData?.Status}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          <div className={styles.modalFooter}>
-            <DefaultBtn
-              label="Cancel"
-              onClick={() => {
-                props.handlerModalVisibilty(false);
-                props.onHide();
-              }}
-            />
-            {taskData?.Status !== "Completed" &&
-              taskData?.Status !== "Approved" && (
-                <PrimaryBtn
-                  label={`${
-                    props.modalProps.type === "Edit" ? "Update" : "Add"
-                  }`}
-                  onClick={() => {
-                    handlerAddTasktoSPList(taskData as ITask).catch((err) => {
-                      console.log(err);
-                    });
+                <label htmlFor={"startDate"}>{"Start Date"}</label>
+                <InputText
+                  disabled={isFieldDisabled()}
+                  id="startDate"
+                  // Change to a text input if you want to display "MM/DD/YYYY" format
+                  type="date"
+                  value={
+                    taskData?.StartDate
+                      ? new Date(taskData.StartDate).toLocaleDateString("en-CA")
+                      : ""
+                  }
+                  onChange={(e) => {
+                    setTaskData({
+                      ...taskData,
+                      StartDate: e.target.value,
+                    } as ITask);
                   }}
                 />
-              )}
+              </div>
+              <div className={styles.col4}>
+                <label htmlFor={"endDate"}>{"End Date"}</label>
+                <InputText
+                  disabled={isFieldDisabled()}
+                  id="endDate"
+                  // Change to a text input so that the value is shown as "MM/DD/YYYY"
+                  type="date"
+                  value={
+                    taskData?.EndDate
+                      ? new Date(taskData.EndDate).toLocaleDateString("en-CA")
+                      : ""
+                  }
+                  onChange={(e) => {
+                    setTaskData({
+                      ...taskData,
+                      EndDate: e.target.value,
+                    } as ITask);
+                  }}
+                />
+              </div>
+            </div>
+            {/* Row */}
+            {/* Footer Button section */}
+            {props.modalProps.type === "Edit" && (
+              <div className={styles.row}>
+                <div className={styles.col4}>
+                  <label htmlFor="Status">Status</label>
+                  {taskData?.Status !== "Completed" &&
+                  taskData?.Status !== "Approved" &&
+                  taskData?.Status !== "Rejected" &&
+                  taskData?.Status !== "Awaiting approval" ? (
+                    <Dropdown
+                      value={
+                        updatedStatus === ""
+                          ? taskData?.Status || ""
+                          : updatedStatus
+                      }
+                      onChange={(e) => setUpdatedStatus(e.value as string)}
+                      options={
+                        taskData?.Status === "In Progress"
+                          ? ["In Progress", "Completed"]
+                          : ["Yet to start", "In Progress", "Completed"]
+                      }
+                      optionLabel="name"
+                      placeholder=""
+                    />
+                  ) : (
+                    <div
+                      className={styles.taskStatus}
+                      style={statusStyleMap[taskData?.Status as string] || {}}
+                    >
+                      {taskData?.Status}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            <div className={styles.modalFooter}>
+              <DefaultBtn
+                label="Cancel"
+                onClick={() => {
+                  props.handlerModalVisibilty(false);
+                  props.onHide();
+                }}
+              />
+              {taskData?.Status !== "Completed" &&
+                taskData?.Status !== "Approved" &&
+                taskData?.Status !== "Rejected" &&
+                taskData?.Status !== "Awaiting approval" && (
+                  <PrimaryBtn
+                    label={`${
+                      props.modalProps.type === "Edit" ? "Update" : "Add"
+                    }`}
+                    onClick={() => {
+                      handlerAddTasktoSPList(taskData as ITask).catch((err) => {
+                        console.log(err);
+                      });
+                    }}
+                  />
+                )}
+            </div>
+            {/* Footer Button sectiond */}
           </div>
-          {/* Footer Button sectiond */}
-        </div>
+        )}
       </Dialog>
     </div>
   );

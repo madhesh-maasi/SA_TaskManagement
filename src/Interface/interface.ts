@@ -39,7 +39,7 @@ export interface ITask {
   TaskName: string;
   TaskDescription: string;
   Category: ICategory;
-  Author: IPersonField;
+  Allocator: IPersonField;
   Performer: IPersonField;
   StartDate: string | undefined | any;
   EndDate: string | undefined | any;

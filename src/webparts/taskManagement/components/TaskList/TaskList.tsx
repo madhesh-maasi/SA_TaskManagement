@@ -86,7 +86,14 @@ const TaskList = (props: TaskListProps): JSX.Element => {
       <div className={styles.actionIcons}>
         <i
           style={{ color: "#3362B5" }}
-          className="pi pi-pencil"
+          className={`pi ${
+            rowData.Status === "Completed" ||
+            rowData.Status === "Approved" ||
+            rowData.Status === "Rejected" ||
+            rowData.Status === "Awaiting approval"
+              ? "pi-eye"
+              : "pi-pencil"
+          }`}
           onClick={() => {
             console.log(`${rowData.ID} Edit Task`);
             props.handlerModalProps("Edit", rowData.ID);

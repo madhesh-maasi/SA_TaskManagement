@@ -45,6 +45,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [statusChoices, setStatusChoices] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [activeTabIndex, setActiveTabIndex] = useState<number>(0);
   const toast = useRef<Toast>(null);
 
   // Filtering function
@@ -57,7 +58,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
         (task) =>
           (task.Performer &&
             task.Performer.EMail === props.currentUser.Email) ||
-          (task.Author && task.Author.EMail === props.currentUser.Email)
+          (task.Allocator && task.Allocator.EMail === props.currentUser.Email)
       );
     }
 
@@ -82,7 +83,8 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
     } else {
       if (selectedFilterUser !== "") {
         filtered = filtered.filter(
-          (task) => task.Author && task.Author.EMail === selectedFilterUser
+          (task) =>
+            task.Allocator && task.Allocator.EMail === selectedFilterUser
         );
       }
     }
@@ -120,8 +122,8 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
     await SpServices.SPReadItems({
       Listname: Config.ListName.Tasks,
       Select:
-        "*,Performer/Title,Performer/EMail,Author/Title,Author/EMail,Category/Title,Category/ID,Approver/Title,Approver/EMail,Recurrence/ID,Recurrence/Title",
-      Expand: "Performer,Author,Category,Approver,Recurrence",
+        "*,Performer/Title,Performer/EMail,Allocator/Title,Allocator/EMail,Category/Title,Category/ID,Approver/Title,Approver/EMail,Recurrence/ID,Recurrence/Title",
+      Expand: "Performer,Allocator,Category,Approver,Recurrence",
       Orderby: "ID",
       Orderbydecorasc: false,
     }).then((res: ITask[]) => {
@@ -132,7 +134,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
           TaskName: li.TaskName,
           TaskDescription: li.TaskDescription,
           Category: { code: li?.Category?.ID, name: li?.Category?.Title },
-          Author: li.Author,
+          Allocator: li.Allocator,
           Performer: li.Performer,
           StartDate: new Date(li.StartDate).toLocaleDateString(),
           EndDate: new Date(li.EndDate).toLocaleDateString(),
@@ -297,7 +299,14 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
       {isLoading ? (
         <Loader />
       ) : (
-        <TabView className={styles.tabView}>
+        <TabView
+          className={styles.tabView}
+          activeIndex={activeTabIndex}
+          onTabChange={(e) => {
+            setActiveTabIndex(e.index);
+            // You can also call refresh or any additional logic if needed
+          }}
+        >
           <TabPanel header="Card">
             <div className={styles.CardView}>
               {taskData.length > 0 ? (
