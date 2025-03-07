@@ -539,7 +539,9 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
             {/* Row */}
             <div className={styles.row}>
               <div className={styles.col4}>
-                <label htmlFor="TaskName">Task Name</label>
+                <label htmlFor="TaskName">
+                  Task Name <span style={{ color: "red" }}>*</span>
+                </label>
                 <InputText
                   placeholder="Task Name"
                   disabled={isFieldDisabled()}
@@ -554,7 +556,9 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                 />
               </div>
               <div className={styles.col4}>
-                <label htmlFor="Category">Category</label>
+                <label htmlFor="Category">
+                  Category <span style={{ color: "red" }}>*</span>
+                </label>
                 <Dropdown
                   placeholder="Category"
                   disabled={isFieldDisabled()}
@@ -567,7 +571,9 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                 />
               </div>
               <div className={styles.col4}>
-                <label htmlFor="AssignedTo">Assigned to</label>
+                <label htmlFor="AssignedTo">
+                  Assigned to <span style={{ color: "red" }}>*</span>
+                </label>
                 <CustomPeoplePicker
                   placeholder="Performer"
                   disabled={isFieldDisabled()}
@@ -595,7 +601,9 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
             {/* Row */}
             <div className={styles.row}>
               <div className={styles.col12}>
-                <label htmlFor="Description">Description</label>
+                <label htmlFor="Description">
+                  Description <span style={{ color: "red" }}>*</span>
+                </label>
                 <InputTextarea
                   placeholder="Description"
                   style={{ resize: "none" }}
@@ -698,7 +706,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                           } as ITask)
                         }
                         options={[...Config.RecurrenceType]}
-                        placeholder="Type"
+                        placeholder="Recurrence type"
                       />
                     </div>
                     {taskData?.RecurrenceType === "Weekly" ||
@@ -729,7 +737,11 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                               : Config.Dates
                           }
                           optionLabel="name"
-                          placeholder="Recurrence Type"
+                          placeholder={`${
+                            taskData?.RecurrenceType === "Weekly"
+                              ? "Recurrence day"
+                              : "Recurrence date"
+                          }`}
                         />
                       </div>
                     ) : (
@@ -798,7 +810,9 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
             {/* Row */}
             <div className={styles.row}>
               <div className={styles.col4}>
-                <label htmlFor={"startDate"}>{"Start Date"}</label>
+                <label htmlFor={"startDate"}>
+                  {"Start Date"} <span style={{ color: "red" }}>*</span>
+                </label>
                 <InputText
                   disabled={isFieldDisabled()}
                   id="startDate"
@@ -818,7 +832,9 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                 />
               </div>
               <div className={styles.col4}>
-                <label htmlFor={"endDate"}>{"End Date"}</label>
+                <label htmlFor={"endDate"}>
+                  {"End Date"} <span style={{ color: "red" }}>*</span>
+                </label>
                 <InputText
                   disabled={isFieldDisabled()}
                   id="endDate"
@@ -843,7 +859,9 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
             {props.modalProps.type === "Edit" && (
               <div className={styles.row}>
                 <div className={styles.col4}>
-                  <label htmlFor="Status">Status</label>
+                  <label htmlFor="Status">
+                    Status <span style={{ color: "red" }}>*</span>
+                  </label>
                   {taskData?.Status !== "Completed" &&
                   taskData?.Status !== "Approved" &&
                   taskData?.Status !== "Rejected" &&
