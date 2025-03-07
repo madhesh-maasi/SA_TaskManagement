@@ -53,6 +53,13 @@ const statusStyleMap: { [key: string]: React.CSSProperties } = {
     borderRadius: "4px",
     fontWeight: 400,
   },
+  Overdue: {
+    backgroundColor: "#FBEAEA",
+    color: "#D9534F",
+    padding: "0.2rem 2rem",
+    borderRadius: "4px",
+    fontWeight: 400,
+  },
   Rejected: {
     backgroundColor: "#FBEAEA",
     color: "#D9534F",
@@ -67,11 +74,6 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
   const [optionsVisible, setOptionsVisible] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // Update the task state when prop changes
-  useEffect(() => {
-    setTask(props.task);
-  }, [props.task]);
-
   // Handle clicking the three-dot icon
   const handleEllipsisClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // prevent triggering the document click event
@@ -84,13 +86,6 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
       setOptionsVisible(false);
     }
   };
-
-  useEffect(() => {
-    document.addEventListener("click", handleDocumentClick);
-    return () => {
-      document.removeEventListener("click", handleDocumentClick);
-    };
-  }, []);
 
   // Option handlers (customize as needed)
   const handleEdit = (): void => {
@@ -105,6 +100,17 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
     setOptionsVisible(false);
   };
 
+  // Update the task state when prop changes
+  useEffect(() => {
+    setTask(props.task);
+  }, [props.task]);
+
+  useEffect(() => {
+    document.addEventListener("click", handleDocumentClick);
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
+  }, []);
   return (
     <div className={styles.cardContainer} ref={cardRef}>
       {/* Header section */}
@@ -118,7 +124,8 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
             {task?.Status}
           </div>
           {(props.currentUser.isApprover ||
-            task?.Author.EMail === props.currentUser.Email) && (
+            task?.Allocator.EMail === props.currentUser.Email ||
+            task?.Performer.EMail === props.currentUser.Email) && (
             <i className="pi pi-ellipsis-v" onClick={handleEllipsisClick} />
           )}
           <CardOptions
@@ -128,9 +135,8 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
               task?.Status !== "Overdue"
             }
             isDelete={
-              (props.currentUser.isApprover ||
-                task?.Author.EMail === props.currentUser.Email) &&
-              task?.Status !== "Yet to start"
+              props.currentUser.isApprover ||
+              task?.Allocator.EMail === props.currentUser.Email
             }
             id={task?.ID ?? 0}
             visible={optionsVisible}
@@ -158,12 +164,12 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
             image={`/_layouts/15/userphoto.aspx?size=S&username=${
               props.currentUser.isApprover
                 ? task?.Performer?.EMail
-                : task?.Author?.EMail
+                : task?.Allocator?.EMail
             }`}
           />
           {props.currentUser.isApprover
             ? task?.Performer?.Title
-            : task?.Author?.Title}
+            : task?.Allocator?.Title}
         </div>
         <div className={styles.completionDate}>
           <i className="pi pi-calendar" />

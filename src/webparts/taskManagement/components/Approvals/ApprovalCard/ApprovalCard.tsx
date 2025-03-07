@@ -76,7 +76,7 @@ const ApprovalCard: React.FC<ApprovalCardProps> = ({
           <div className={styles.dashLine} />
           <div className={styles.taskEndDate}>
             <i className="pi pi-calendar" />
-            {new Date(item.StartDate).toLocaleDateString()}
+            {new Date(item.EndDate).toLocaleDateString()}
           </div>
         </div>
         {/* Completed Date & Status Pill */}

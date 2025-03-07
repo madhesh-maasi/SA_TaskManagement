@@ -54,6 +54,7 @@ const DeletePopup: React.FC<DeletePopupProps> = ({
   return (
     <Dialog
       header="Confirm Delete"
+      draggable={false}
       visible={deleteModalProps.flag}
       style={{ width: "400px" }}
       footer={footerContent}

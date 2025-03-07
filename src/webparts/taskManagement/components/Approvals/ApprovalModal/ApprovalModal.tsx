@@ -40,6 +40,7 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({
   }, [selectedID, isModalVisible]);
   return (
     <Dialog
+      draggable={false}
       header={`Confirmation`}
       visible={visible}
       onHide={() => {

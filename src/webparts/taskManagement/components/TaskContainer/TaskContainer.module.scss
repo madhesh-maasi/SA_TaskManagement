@@ -44,7 +44,7 @@
         flex-wrap: wrap;
         gap: 0.8rem;
         width: 100%;
-        height: calc(100vh - 308px);
+        max-height: calc(100vh - 308px);
         overflow: auto;
     }
 }

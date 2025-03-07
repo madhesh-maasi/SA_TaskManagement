@@ -27,7 +27,7 @@ const CardOptions: React.FC<CardOptionsProps> = ({
         <li className={`${styles.option} ${styles.edit}`} onClick={onEdit}>
           {isView ? "View" : "Edit"}
         </li>
-        {!isDelete && (
+        {isDelete && (
           <li
             className={`${styles.option} ${styles.delete}`}
             onClick={onDelete}
