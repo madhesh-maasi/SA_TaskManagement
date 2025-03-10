@@ -1,7 +1,19 @@
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
 .LeftNavContainer {
     background: #F4F8F5;
     min-height: calc(100vh - 308px);
     width: 20rem;
+    animation: slideInLeft 0.5s ease-out; // Animate the whole container
     .logoSection {
         img {
             width: 100%;
@@ -22,6 +34,8 @@
             gap: 12px;
             padding: 12px 24px;
             border-radius: 6px;
+            opacity: 0; // Start hidden
+            animation: slideInLeft 0.5s forwards; // Animate each nav item
             &:hover {
                 background: #DDF6EB;
             }
@@ -38,5 +52,22 @@
                 font-weight: 700;
             }
         }
+        // Stagger animation delays for nav items
+        .NavItem:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+        .NavItem:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .NavItem:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+        .NavItem:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+        .NavItem:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+        // Add more nth-child selectors if you have additional items
     }
 }

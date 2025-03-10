@@ -51,7 +51,8 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({
     >
       <div
         className={styles.modalContent}
-      >{`Are you sure want to ${selectedStatus}?`}</div>
+      >{`Are you sure you want to ${selectedStatus} this task?`}</div>
+
       <div className={styles.btnSection}>
         <PrimaryBtn
           label="Yes"

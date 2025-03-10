@@ -44,6 +44,11 @@ const Approvals = (props: ApprovalsProps): JSX.Element => {
           Operator: "eq",
           FilterValue: 1,
         },
+        {
+          FilterKey: "ApproverId",
+          Operator: "eq",
+          FilterValue: props.currentUser.Id,
+        },
       ],
     });
     const newData: ITaskList = res.map((li: ITask) => {

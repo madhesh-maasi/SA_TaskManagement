@@ -235,34 +235,38 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
         };
       }
     }
+    if (
+      props.modalProps.type === "Add" ||
+      (props.modalProps.type === "Edit" && task.Status === "Yet to start")
+    ) {
+      // Updated validation: start date must be greater than or equal to today
+      if (startDate < today) {
+        return {
+          value: false,
+          message: "The start date must be today or a future date",
+        };
+      }
+      // Ensure Start Date and End Date are provided
+      if (!task.StartDate) {
+        return {
+          value: false,
+          message: "Start date is mandatory",
+        };
+      }
+      if (!task.EndDate) {
+        return {
+          value: false,
+          message: "End date is mandatory",
+        };
+      }
 
-    // Updated validation: start date must be greater than or equal to today
-    if (startDate < today) {
-      return {
-        value: false,
-        message: "The start date must be today or a future date",
-      };
-    }
-    // Ensure Start Date and End Date are provided
-    if (!task.StartDate) {
-      return {
-        value: false,
-        message: "Start date is mandatory",
-      };
-    }
-    if (!task.EndDate) {
-      return {
-        value: false,
-        message: "End date is mandatory",
-      };
-    }
-
-    // Updated validation: end date must be greater than or equal to start date
-    if (endDate < startDate) {
-      return {
-        value: false,
-        message: "The end date must be later or greater than the start date",
-      };
+      // Updated validation: end date must be greater than or equal to start date
+      if (endDate < startDate) {
+        return {
+          value: false,
+          message: "The end date must be later or greater than the start date",
+        };
+      }
     }
 
     return {
@@ -501,6 +505,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
   const isFieldDisabled = (): boolean => {
     // Once completed, approved, or rejected, disable editing
     if (
+      taskData?.Status === "Overdue" ||
       taskData?.Status === "Completed" ||
       taskData?.Status === "Approved" ||
       taskData?.Status === "Rejected" ||
@@ -539,7 +544,9 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
             {/* Row */}
             <div className={styles.row}>
               <div className={styles.col4}>
-                <label htmlFor="TaskName">Task Name</label>
+                <label htmlFor="TaskName">
+                  Task Name <span style={{ color: "red" }}>*</span>
+                </label>
                 <InputText
                   placeholder="Task Name"
                   disabled={isFieldDisabled()}
@@ -554,7 +561,9 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                 />
               </div>
               <div className={styles.col4}>
-                <label htmlFor="Category">Category</label>
+                <label htmlFor="Category">
+                  Category <span style={{ color: "red" }}>*</span>
+                </label>
                 <Dropdown
                   placeholder="Category"
                   disabled={isFieldDisabled()}
@@ -567,7 +576,9 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                 />
               </div>
               <div className={styles.col4}>
-                <label htmlFor="AssignedTo">Assigned to</label>
+                <label htmlFor="AssignedTo">
+                  Assigned to <span style={{ color: "red" }}>*</span>
+                </label>
                 <CustomPeoplePicker
                   placeholder="Performer"
                   disabled={isFieldDisabled()}
@@ -595,7 +606,9 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
             {/* Row */}
             <div className={styles.row}>
               <div className={styles.col12}>
-                <label htmlFor="Description">Description</label>
+                <label htmlFor="Description">
+                  Description <span style={{ color: "red" }}>*</span>
+                </label>
                 <InputTextarea
                   placeholder="Description"
                   style={{ resize: "none" }}
@@ -698,7 +711,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                           } as ITask)
                         }
                         options={[...Config.RecurrenceType]}
-                        placeholder="Type"
+                        placeholder="Recurrence type"
                       />
                     </div>
                     {taskData?.RecurrenceType === "Weekly" ||
@@ -729,7 +742,11 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                               : Config.Dates
                           }
                           optionLabel="name"
-                          placeholder="Recurrence Type"
+                          placeholder={`${
+                            taskData?.RecurrenceType === "Weekly"
+                              ? "Recurrence day"
+                              : "Recurrence date"
+                          }`}
                         />
                       </div>
                     ) : (
@@ -798,7 +815,9 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
             {/* Row */}
             <div className={styles.row}>
               <div className={styles.col4}>
-                <label htmlFor={"startDate"}>{"Start Date"}</label>
+                <label htmlFor={"startDate"}>
+                  {"Start Date"} <span style={{ color: "red" }}>*</span>
+                </label>
                 <InputText
                   disabled={isFieldDisabled()}
                   id="startDate"
@@ -818,7 +837,9 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                 />
               </div>
               <div className={styles.col4}>
-                <label htmlFor={"endDate"}>{"End Date"}</label>
+                <label htmlFor={"endDate"}>
+                  {"End Date"} <span style={{ color: "red" }}>*</span>
+                </label>
                 <InputText
                   disabled={isFieldDisabled()}
                   id="endDate"
@@ -843,7 +864,9 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
             {props.modalProps.type === "Edit" && (
               <div className={styles.row}>
                 <div className={styles.col4}>
-                  <label htmlFor="Status">Status</label>
+                  <label htmlFor="Status">
+                    Status <span style={{ color: "red" }}>*</span>
+                  </label>
                   {taskData?.Status !== "Completed" &&
                   taskData?.Status !== "Approved" &&
                   taskData?.Status !== "Rejected" &&
@@ -858,6 +881,8 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                       options={
                         taskData?.Status === "In Progress"
                           ? ["In Progress", "Completed"]
+                          : taskData?.Status === "Overdue"
+                          ? ["Overdue", "Completed"]
                           : ["Yet to start", "In Progress", "Completed"]
                       }
                       optionLabel="name"
