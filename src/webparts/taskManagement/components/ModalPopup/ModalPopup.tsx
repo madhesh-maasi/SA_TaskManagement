@@ -235,34 +235,38 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
         };
       }
     }
+    if (
+      props.modalProps.type === "Add" ||
+      (props.modalProps.type === "Edit" && task.Status === "Yet to start")
+    ) {
+      // Updated validation: start date must be greater than or equal to today
+      if (startDate < today) {
+        return {
+          value: false,
+          message: "The start date must be today or a future date",
+        };
+      }
+      // Ensure Start Date and End Date are provided
+      if (!task.StartDate) {
+        return {
+          value: false,
+          message: "Start date is mandatory",
+        };
+      }
+      if (!task.EndDate) {
+        return {
+          value: false,
+          message: "End date is mandatory",
+        };
+      }
 
-    // Updated validation: start date must be greater than or equal to today
-    if (startDate < today) {
-      return {
-        value: false,
-        message: "The start date must be today or a future date",
-      };
-    }
-    // Ensure Start Date and End Date are provided
-    if (!task.StartDate) {
-      return {
-        value: false,
-        message: "Start date is mandatory",
-      };
-    }
-    if (!task.EndDate) {
-      return {
-        value: false,
-        message: "End date is mandatory",
-      };
-    }
-
-    // Updated validation: end date must be greater than or equal to start date
-    if (endDate < startDate) {
-      return {
-        value: false,
-        message: "The end date must be later or greater than the start date",
-      };
+      // Updated validation: end date must be greater than or equal to start date
+      if (endDate < startDate) {
+        return {
+          value: false,
+          message: "The end date must be later or greater than the start date",
+        };
+      }
     }
 
     return {
@@ -501,6 +505,7 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
   const isFieldDisabled = (): boolean => {
     // Once completed, approved, or rejected, disable editing
     if (
+      taskData?.Status === "Overdue" ||
       taskData?.Status === "Completed" ||
       taskData?.Status === "Approved" ||
       taskData?.Status === "Rejected" ||
@@ -876,6 +881,8 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
                       options={
                         taskData?.Status === "In Progress"
                           ? ["In Progress", "Completed"]
+                          : taskData?.Status === "Overdue"
+                          ? ["Overdue", "Completed"]
                           : ["Yet to start", "In Progress", "Completed"]
                       }
                       optionLabel="name"
