@@ -1,3 +1,14 @@
+@keyframes cardLoad {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .approvalContainer {
     width: 100%;
     .headerSection {
@@ -40,6 +51,42 @@
         display: flex;
         flex-wrap: wrap;
         gap: 6px;
+        // Apply animation to each approval card
+        >* {
+            opacity: 0;
+            animation: cardLoad 0.5s forwards;
+        }
+        // Stagger animation delay for the first several items (adjust as needed)
+        >*:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+        >*:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        >*:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+        >*:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+        >*:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+        >*:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+        >*:nth-child(7) {
+            animation-delay: 0.7s;
+        }
+        >*:nth-child(8) {
+            animation-delay: 0.8s;
+        }
+        >*:nth-child(9) {
+            animation-delay: 0.9s;
+        }
+        >*:nth-child(10) {
+            animation-delay: 1s;
+        }
     }
 }
 
@@ -70,7 +117,7 @@
 }
 
 
-/* Optional animation for added interaction */
+/* Existing pulse animation */
 
 @keyframes pulse {
     0% {
