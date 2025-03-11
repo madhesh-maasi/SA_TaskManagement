@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import SpServices from "../../../../Services/SPServices/SpServices";
 import { Config } from "../../../../Config/config";
 import { ITaskList, ITask } from "../../../../Interface/interface";
-import TotalTasks from "./TotalTasks/TotalTasks";
 import styles from "./Reports.module.scss";
+import TotalTasks from "./TotalTasks/TotalTasks";
+import UserTasks from "./UserTasks/UserTasks";
+import LatePerformers from "./LatePerformers/LatePerformers";
 interface ReportsProps {
   // Define the props here if there are any
   context: any;
@@ -26,7 +28,7 @@ const Reports = (props: ReportsProps): JSX.Element => {
       .then((response) => {
         console.log(response);
         const taskList: ITaskList = [];
-        response.map((li: ITask) => {
+        const taskData = response.map((li: ITask) => {
           return {
             ID: li.ID,
             Title: li.Title,
@@ -54,8 +56,8 @@ const Reports = (props: ReportsProps): JSX.Element => {
             Approver: li.Approver,
           };
         });
+        setTasks([...taskData]);
         console.log(taskList);
-        setTasks([...taskList]);
       })
       .catch((error) => {
         console.log(error);
@@ -68,6 +70,8 @@ const Reports = (props: ReportsProps): JSX.Element => {
   return (
     <div className={styles.ReportContainer}>
       <TotalTasks tasks={tasks} />
+      <UserTasks tasks={tasks} />
+      <LatePerformers tasks={tasks.filter((li) => li.Status === "Overdue")} />
     </div>
   );
 };

@@ -307,7 +307,6 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
             // You can also call refresh or any additional logic if needed
           }}
         >
-          <TabPanel header="Recurrence"></TabPanel>
           <TabPanel header="Card">
             <div className={styles.CardView}>
               {taskData.length > 0 ? (
@@ -352,6 +351,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
               )}
             </div>
           </TabPanel>
+          <TabPanel header="Recurrence"></TabPanel>
         </TabView>
       )}
     </div>
