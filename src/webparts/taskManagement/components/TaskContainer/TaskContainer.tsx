@@ -3,7 +3,12 @@ import * as React from "react";
 import { useEffect, useState, useRef } from "react";
 import { Config } from "../../../../Config/config";
 import SpServices from "../../../../Services/SPServices/SpServices";
-import { ITaskList, ITask } from "../../../../Interface/interface";
+import {
+  ITaskList,
+  ITask,
+  IRecurrence,
+  IRecurrenceList,
+} from "../../../../Interface/interface";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { TabView, TabPanel } from "primereact/tabview";
@@ -31,6 +36,7 @@ interface TasksListProps {
 const TaskContainer = (props: TasksListProps): JSX.Element => {
   const [taskData, setTaskData] = useState<ITaskList>([]);
   const [allTaskData, setAllTaskData] = useState<ITaskList>([]);
+  const [recData, setRecData] = useState<IRecurrenceList>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [deleteModalProps, setDeleteModalProps] = useState({
     flag: false,
@@ -100,6 +106,35 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
     setTaskData(filtered);
   };
 
+  const handerGetRecurrenceTask = async (): Promise<void> => {
+    await SpServices.SPReadItems({
+      Listname: Config.ListName.Config_Recurrence,
+      Select:
+        "*,Performer/Title,Performer/EMail,Performer/ID,Allocator/ID,Allocator/Title,Allocator/EMail,Category/Title,Category/ID,Approver/Title,Approver/EMail,Approver/ID",
+      Expand: "Performer,Allocator,Category,Approver",
+    }).then((res: IRecurrence[]) => {
+      const _arrRecurrenceData = res.map((li: IRecurrence) => {
+        return {
+          ID: li.ID,
+          Title: li.Title,
+          TaskDescription: li.TaskDescription,
+          StartDate: new Date(li.StartDate).toLocaleDateString(),
+          EndDate: new Date(li.EndDate).toLocaleDateString(),
+          Rec_Type: li.Rec_Type,
+          Rec_Day: li.Rec_Day,
+          Rec_Date: li.Rec_Date,
+          Rec_Status: li.Rec_Status,
+          Performer: li.Performer,
+          Allocator: li.Allocator,
+          Approver: li.Approver,
+          IsApproval: li.IsApproval,
+          Category: { code: li?.Category?.ID, name: li?.Category?.Title },
+        };
+      });
+      setRecData([..._arrRecurrenceData]);
+      console.log(recData);
+    });
+  };
   // Fetch Tasks and Categories
   const handlerGetTasks = async (): Promise<void> => {
     setIsLoading(true);
@@ -122,11 +157,12 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
     await SpServices.SPReadItems({
       Listname: Config.ListName.Tasks,
       Select:
-        "*,Performer/Title,Performer/EMail,Allocator/Title,Allocator/EMail,Category/Title,Category/ID,Approver/Title,Approver/EMail,Recurrence/ID,Recurrence/Title",
+        "*,Performer/Title,Performer/EMail,Performer/ID,Allocator/ID,Allocator/Title,Allocator/EMail,Category/Title,Category/ID,Approver/Title,Approver/EMail,Approver/ID,Recurrence/ID,Recurrence/Title",
       Expand: "Performer,Allocator,Category,Approver,Recurrence",
       Orderby: "ID",
       Orderbydecorasc: false,
     }).then((res: ITask[]) => {
+      console.log(res);
       _arrTaskData = res.map((li: ITask) => {
         return {
           ID: li.ID,
@@ -212,9 +248,15 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
   ]);
   // Component Lifecycle: Fetch tasks on mount and refetch when modal or delete popup closes
   useEffect(() => {
-    handlerGetTasks().catch((err) => {
-      console.log(err);
-    });
+    handerGetRecurrenceTask()
+      .then(() => {
+        handlerGetTasks().catch((err) => {
+          console.log(err);
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, [!showModal, !deleteModalProps.flag]);
 
   return (
@@ -307,6 +349,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
             // You can also call refresh or any additional logic if needed
           }}
         >
+          {/* <TabPanel header="Recurrence"></TabPanel> */}
           <TabPanel header="Card">
             <div className={styles.CardView}>
               {taskData.length > 0 ? (
@@ -351,7 +394,6 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
               )}
             </div>
           </TabPanel>
-          <TabPanel header="Recurrence"></TabPanel>
         </TabView>
       )}
     </div>

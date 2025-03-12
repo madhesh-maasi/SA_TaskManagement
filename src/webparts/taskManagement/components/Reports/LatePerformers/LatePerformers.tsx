@@ -3,12 +3,6 @@ import { ITaskList } from "../../../../../Interface/interface";
 import { Line } from "react-chartjs-2";
 import styles from "./LatePerformers.module.scss";
 
-// Function to generate color using HSL with a glassy look
-const generateColor = (index: number, total: number): string => {
-  const hue = Math.floor((360 / total) * index);
-  return `hsla(${hue}, 70%, 60%, 0.6)`;
-};
-
 interface LatePerformersProps {
   tasks: ITaskList;
 }
@@ -34,38 +28,57 @@ const LatePerformers: React.FC<LatePerformersProps> = ({
       tasks.filter((task) => task.Performer.EMail === performer.EMail).length
   );
 
-  // Base palette for a few colors
+  // Option 1: Generate dynamic primary color variations based on #40BE85.
+  // Primary color approximated as hsl(153, 66%, 50%), with lightness varying from 40% to 60%.
+  const primaryHue = 153;
+  const primarySaturation = 66;
+  const totalCount = performerLabels.length;
+  const primaryColors = performerLabels.map((_, index) => {
+    const lightness =
+      totalCount > 1 ? 40 + (20 * index) / (totalCount - 1) : 50;
+    return {
+      border: `hsl(${primaryHue}, ${primarySaturation}%, ${lightness}%)`,
+      background: `hsla(${primaryHue}, ${primarySaturation}%, ${lightness}%, 0.6)`,
+    };
+  });
+
+  // Option 2: A base multi‑color palette for more variety.
   const basePalette = [
-    "rgba(255,105,180, 0.6)", // Hot Pink
-    "rgba(0,204,255, 0.6)", // Vivid Sky Blue
-    "rgba(255,223,0, 0.6)", // Bright Yellow
-    "rgba(144,238,144, 0.6)", // Light Green
-    "rgba(147,112,219, 0.6)", // Medium Purple
-    "rgba(255,165,0, 0.6)", // Orange
+    "#40BE85", // primary color
+    "#FF6384",
+    "#36A2EB",
+    "#FFCE56",
+    "#4BC0C0",
+    "#9966FF",
+    "#FF9F40",
   ];
+  const multiColors = performerLabels.map((_, index) => {
+    return basePalette[index % basePalette.length];
+  });
 
-  // Generate a dynamic palette based on the number of unique performers
-  const backgroundColors =
-    performerLabels.length <= basePalette.length
-      ? performerLabels.map(
-          (_, index) => basePalette[index % basePalette.length]
-        )
-      : performerLabels.map((_, index) =>
-          generateColor(index, performerLabels.length)
-        );
+  // Combine both options: alternate between primaryColors and multiColors.
+  const finalBorderColors = performerLabels.map((_, index) =>
+    index % 2 === 0 ? primaryColors[index].border : multiColors[index]
+  );
+  const finalBackgroundColors = performerLabels.map((_, index) =>
+    index % 2 === 0 ? primaryColors[index].background : multiColors[index]
+  );
 
-  // For a line chart, we use borderColor for the line and optionally backgroundColor for fill
+  // For the line chart:
+  //   - Use finalBorderColors for the line color.
+  //   - Use a lighter variant for area fill by reducing opacity.
+  const fillColors = finalBackgroundColors.map((color) =>
+    color.replace(/hsla\((.*),\s*0\.6\)/, "hsla($1, 0.3)")
+  );
+
   const data = {
     labels: performerLabels,
     datasets: [
       {
         label: "Tasks per Performer",
         data: performerData,
-        // Use the first color from palette for the line border, or you could map different lines if needed.
-        borderColor: backgroundColors,
-        backgroundColor: backgroundColors.map((color) =>
-          color.replace(/hsla\((.*),\s*0\.6\)/, "hsla($1, 0.3)")
-        ), // lighter fill
+        borderColor: finalBorderColors,
+        backgroundColor: fillColors,
         fill: true,
         tension: 0.4,
         borderWidth: 2,
@@ -73,7 +86,6 @@ const LatePerformers: React.FC<LatePerformersProps> = ({
     ],
   };
 
-  // Chart options with legend placed in the bottom right
   const options = {
     responsive: true,
     plugins: {

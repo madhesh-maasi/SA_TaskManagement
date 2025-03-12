@@ -61,18 +61,21 @@ export interface ITask {
 
 export type ITaskList = ITask[];
 
-export interface IConfig_RecurrenceList {
-  TaskName: string;
-  StartDate: string | null;
-  EndDate: string | null;
-  Type: object;
-  Day: object;
-  Date: number;
-  Status: object;
+export interface IRecurrence {
+  Title: string;
+  StartDate: string | undefined | any;
+  EndDate: string | undefined | any;
+  Rec_Type: object;
+  Rec_Day: object;
+  Rec_Date: number;
+  Rec_Status: object;
   IsApproval: boolean;
   Approver: IPersonField;
   Performer: IPersonField;
+  Allocator: IPersonField;
   TaskDescription: string;
   Category: ICategory;
   NextTaskDate?: string;
+  ID: number;
 }
+export type IRecurrenceList = IRecurrence[];

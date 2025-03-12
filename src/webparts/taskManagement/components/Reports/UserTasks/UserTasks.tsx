@@ -7,18 +7,12 @@ interface UserTasksProps {
   tasks: ITaskList;
 }
 
-// Function to generate color using HSL with a glassy look
-const generateColor = (index: number, total: number): string => {
-  const hue = Math.floor((360 / total) * index);
-  return `hsla(${hue}, 70%, 60%, 0.6)`;
-};
-
 const UserTasks: React.FC<UserTasksProps> = ({ tasks }): JSX.Element => {
   // Extract performers from tasks
-  const _arrPerformers = tasks.map((task) => task.Performer);
+  const performers = tasks.map((task) => task.Performer);
 
   // Remove duplicate performers using the EMail key
-  const distinctPerformers = _arrPerformers.filter(
+  const distinctPerformers = performers.filter(
     (performer, index, self) =>
       index === self.findIndex((item) => item.EMail === performer.EMail)
   );
@@ -32,25 +26,37 @@ const UserTasks: React.FC<UserTasksProps> = ({ tasks }): JSX.Element => {
       tasks.filter((task) => task.Performer.EMail === performer.EMail).length
   );
 
-  // Base palette for a few colors
-  const basePalette = [
-    "rgba(255,105,180, 0.6)", // Hot Pink
-    "rgba(0,204,255, 0.6)", // Vivid Sky Blue
-    "rgba(255,223,0, 0.6)", // Bright Yellow
-    "rgba(144,238,144, 0.6)", // Light Green
-    "rgba(147,112,219, 0.6)", // Medium Purple
-    "rgba(255,165,0, 0.6)", // Orange
-  ];
+  // Option 1: Generate dynamic color variations based on primary color #40BE85.
+  // Primary color approximated as hsl(153,66%,50%) with lightness varying from 40% to 60%.
+  const primaryHue = 153;
+  const primarySaturation = 66;
+  const totalLabels = performerLabels.length;
+  const primaryColors = performerLabels.map((_, index) => {
+    const lightness =
+      totalLabels > 1 ? 40 + (20 * index) / (totalLabels - 1) : 50;
+    return `hsla(${primaryHue}, ${primarySaturation}%, ${lightness}%, 0.6)`;
+  });
 
-  // Generate a dynamic palette based on the number of unique performers
-  const backgroundColors =
-    performerLabels.length <= basePalette.length
-      ? performerLabels.map(
-          (_, index) => basePalette[index % basePalette.length]
-        )
-      : performerLabels.map((_, index) =>
-          generateColor(index, performerLabels.length)
-        );
+  // Option 2: A base multi-color palette for more variety.
+  const basePalette = [
+    "#40BE85", // primary color
+    "#FF6384",
+    "#36A2EB",
+    "#FFCE56",
+    "#4BC0C0",
+    "#9966FF",
+    "#FF9F40",
+  ];
+  const multiColors = performerLabels.map((_, index) => {
+    return basePalette[index % basePalette.length];
+  });
+
+  // You can mix the two approaches. For example, alternate between primaryColors and multiColors:
+  const finalColors = performerLabels.map((_, index) => {
+    return index % 2 === 0 ? primaryColors[index] : multiColors[index];
+  });
+  // Alternatively, you may simply choose one option:
+  // const finalColors = multiColors;
 
   const data = {
     labels: performerLabels,
@@ -58,13 +64,12 @@ const UserTasks: React.FC<UserTasksProps> = ({ tasks }): JSX.Element => {
       {
         label: "Tasks per Performer",
         data: performerData,
-        backgroundColor: backgroundColors,
-        hoverBackgroundColor: backgroundColors,
+        backgroundColor: finalColors,
+        hoverBackgroundColor: finalColors,
       },
     ],
   };
 
-  // Chart options with legend placed on the bottom right
   const options = {
     responsive: true,
     plugins: {

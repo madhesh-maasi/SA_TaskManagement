@@ -438,7 +438,10 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
       CustomerNo: task.CustomerNo,
       PerformerComments: task.PerformerComments,
       ApprovalComments: task.ApprovalComments,
-      AllocatorId: props.currentUser.Id,
+      AllocatorId:
+        props.modalProps.type === "Edit"
+          ? task.Allocator?.ID
+          : props.currentUser.Id,
       Status:
         updatedStatus !== ""
           ? updatedStatus === "Completed" && task.IsApproval

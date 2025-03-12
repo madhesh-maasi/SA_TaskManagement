@@ -8,24 +8,51 @@ interface TotalTasksProps {
 }
 
 const TotalTasks: React.FC<TotalTasksProps> = ({ tasks }): JSX.Element => {
-  // Updated popular modern colors with a glass effect look (translucence)
-  const palette = [
-    "rgba(255,105,180, 0.6)", // Hot Pink
-    "rgba(0,204,255, 0.6)", // Vivid Sky Blue
-    "rgba(255,223,0, 0.6)", // Bright Yellow
-    "rgba(144,238,144, 0.6)", // Light Green
-    "rgba(147,112,219, 0.6)", // Medium Purple
-    "rgba(255,165,0, 0.6)", // Orange
+  const statusLabels = [
+    "Yet to start",
+    "In Progress",
+    "Overdue",
+    "Completed",
+    "Approved",
+    "Rejected",
   ];
+
+  // Option 1: Generate dynamic color variations based on the primary color (#40BE85)
+  // Primary color approximated as hsl(153,66%,50%), varying lightness between 40% and 60%
+  const primaryHue = 153;
+  const primarySaturation = 66;
+  const totalColors = statusLabels.length;
+  const primaryColors = statusLabels.map((_, index) => {
+    const lightness =
+      totalColors > 1 ? 40 + (20 * index) / (totalColors - 1) : 50;
+    return `hsla(${primaryHue}, ${primarySaturation}%, ${lightness}%, 0.6)`;
+  });
+
+  // Option 2: A base multi‑color palette for more variety.
+  const basePalette = [
+    "#40BE85", // primary color
+    "#FF6384",
+    "#36A2EB",
+    "#FFCE56",
+    "#4BC0C0",
+    "#9966FF",
+    "#FF9F40",
+  ];
+  const multiColors = statusLabels.map((_, index) => {
+    return basePalette[index % basePalette.length];
+  });
+
+  // Combine the two options. Here, we alternate between primaryColors and multiColors.
+  const finalColors = statusLabels.map((_, index) => {
+    return index % 2 === 0 ? primaryColors[index] : multiColors[index];
+  });
+  // Alternatively, you may choose to use just one option:
+  // const finalColors = multiColors;
+  // or
+  // const finalColors = primaryColors;
+
   const data = {
-    labels: [
-      "Yet to start",
-      "In Progress",
-      "Overdue",
-      "Completed",
-      "Approved",
-      "Rejected",
-    ],
+    labels: statusLabels,
     datasets: [
       {
         label: "Tasks",
@@ -37,12 +64,12 @@ const TotalTasks: React.FC<TotalTasksProps> = ({ tasks }): JSX.Element => {
           tasks.filter((task) => task.Status === "Approved").length,
           tasks.filter((task) => task.Status === "Rejected").length,
         ],
-        backgroundColor: palette,
-        hoverBackgroundColor: palette,
+        backgroundColor: finalColors,
+        hoverBackgroundColor: finalColors,
       },
     ],
   };
-  // Chart options with legend placed on the bottom right
+
   const options = {
     responsive: true,
     plugins: {
@@ -52,6 +79,7 @@ const TotalTasks: React.FC<TotalTasksProps> = ({ tasks }): JSX.Element => {
       },
     },
   };
+
   return (
     <div className={styles.TotalTaskContainer}>
       <Pie data={data} options={options} />
