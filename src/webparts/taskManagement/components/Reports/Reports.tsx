@@ -108,13 +108,20 @@ const Reports = (props: ReportsProps): JSX.Element => {
     const formattedStartDate = `${startDate}T00:00:00Z`;
     const formattedEndDate = `${endDate}T23:59:59Z`;
 
-    // Build filter query and log it for troubleshooting
-    const filterQuery = `StartDate ge datetime'${formattedStartDate}' and StartDate le datetime'${formattedEndDate}'`;
-    console.log("Filter Query:", filterQuery);
-
     await SpServices.SPReadItems({
       Listname: Config.ListName.Tasks,
-      Filter: filterQuery,
+      Filter: [
+        {
+          FilterKey: "StartDate",
+          Operator: "ge",
+          FilterValue: formattedStartDate,
+        },
+        {
+          FilterKey: "StartDate",
+          Operator: "le",
+          FilterValue: formattedEndDate,
+        },
+      ],
       Select:
         "*,Performer/Title,Performer/EMail,Allocator/Title,Allocator/EMail,Category/Title,Category/ID,Approver/Title,Approver/EMail,Recurrence/ID,Recurrence/Title",
       Expand: "Performer,Allocator,Category,Approver,Recurrence",

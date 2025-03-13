@@ -1,43 +1,65 @@
 import * as React from "react";
 import { IRecurrence } from "../../../../../../Interface/interface";
 import { Avatar } from "primereact/avatar";
+import { confirmPopup } from "primereact/confirmpopup";
 import styles from "./RecurrenceCard.module.scss";
 
 export interface RecurrenceCardProps {
   task: IRecurrence;
-  key: number;
-  handleUpdateToRecurrence: (key: number, type: string, status: string) => void;
+  cardKey: number;
+  handleUpdateToRecurrence: (
+    cardKey: number,
+    type: string,
+    status: string
+  ) => void;
 }
 
 const RecurrenceCard: React.FC<RecurrenceCardProps> = ({
   task,
-  key,
+  cardKey,
   handleUpdateToRecurrence,
 }) => {
+  const confirmDelete = (event: React.MouseEvent) => {
+    confirmPopup({
+      target: event.currentTarget as HTMLElement,
+      message: "Are you sure you want to delete this task?",
+      icon: "pi pi-exclamation-triangle",
+      acceptClassName: "p-button-danger",
+      accept: () => handleUpdateToRecurrence(cardKey, "Delete", ""),
+      reject: () => {
+        console.log("Delete action was rejected");
+      },
+    });
+  };
+
   return (
-    <div className={styles.RecurrenceCard} key={key}>
+    <div className={styles.RecurrenceCard} key={cardKey}>
       {/* Card Header */}
       <div className={styles.cardHeader}>
         <h2>{task.Title}</h2>
-        <div
-          className={`${styles.cardStatus} ${
-            task.Rec_Status === "Active" ? styles.Active : styles.Inactive
-          }`}
-        >
-          <span>{task.Rec_Status}</span>
-          <label className={styles.switch}>
-            <input
-              type="checkbox"
-              checked={task.Rec_Status === "Active"}
-              onChange={(e) => {
-                const newStatus = e.target.checked ? "Active" : "Inactive";
-                console.log(newStatus);
-                handleUpdateToRecurrence(key, "status", newStatus);
-                // You can add additional logic here to handle the status change
-              }}
-            />
-            <span className={styles.slider}></span>
-          </label>
+        <div className={styles.cardActions}>
+          <div
+            className={`${styles.cardStatus} ${
+              task.Rec_Status === "Active" ? styles.Active : styles.Inactive
+            }`}
+          >
+            <span>{task.Rec_Status}</span>
+            <label className={styles.switch}>
+              <input
+                type="checkbox"
+                checked={task.Rec_Status === "Active"}
+                onChange={(e) => {
+                  const newStatus = e.target.checked ? "Active" : "Inactive";
+                  console.log("Toggle new status:", newStatus);
+                  handleUpdateToRecurrence(cardKey, "Update", newStatus);
+                }}
+              />
+              <span className={styles.slider}></span>
+            </label>
+          </div>
+          <div className={styles.cardAction} onClick={confirmDelete}>
+            <i className="pi pi-trash"></i>
+          </div>
         </div>
       </div>
       {/* Card Body */}
@@ -99,22 +121,16 @@ const RecurrenceCard: React.FC<RecurrenceCardProps> = ({
         <div className={styles.TaskApproverSection}>
           <div className={styles.TaskApprover}>
             {task?.Approver ? (
-              <div>
+              <>
                 <Avatar
                   image={`/_layouts/15/userphoto.aspx?size=S&username=${task?.Approver?.EMail}`}
                 />
                 {task?.Approver?.Title}
-              </div>
+              </>
             ) : (
               <div className={styles.NoApproval}>No approval</div>
             )}
           </div>
-        </div>
-        {/* Task Action */}
-        <div className={styles.TaskAction}>
-          <button>View</button>
-          <button>Edit</button>
-          <button>Delete</button>
         </div>
       </div>
     </div>

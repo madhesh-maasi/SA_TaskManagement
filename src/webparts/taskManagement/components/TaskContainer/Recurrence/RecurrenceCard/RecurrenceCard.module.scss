@@ -26,62 +26,78 @@
     }
 }
 
-.cardStatus {
-    display: inline-block;
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-    background-color: #f0f0f0;
-    font-size: 0.9rem;
-    color: #777;
-    &.Active {
-        background-color: #DDE6F6;
-        color: #3362B5;
-    }
-    &.Inactive {
-        background-color: #FDE2E2;
-        color: #D8000C;
-    }
-    .switch {
-        position: relative;
-        display: inline-block;
-        width: 40px;
-        height: 20px;
-        margin-left: 0.5rem;
-        input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
+.cardActions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    .cardAction {
+        i {
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: 0.4s;
-            border-radius: 34px;
+            font-size: 1.2rem;
+            color: #D8000C;
+            transition: color 0.2s ease;
+            &:hover {
+                color: #ff0000;
+            }
         }
-        input:checked+.slider {
-            background-color: #40BE85;
+    }
+    .cardStatus {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        background-color: #f0f0f0;
+        font-size: 0.9rem;
+        color: #777;
+        &.Active {
+            background-color: #DDE6F6;
+            color: #3362B5;
         }
-        input:focus+.slider {
-            box-shadow: 0 0 1px #40BE85;
+        &.Inactive {
+            background-color: #FDE2E2;
+            color: #D8000C;
         }
-        input:checked+.slider:before {
-            transform: translateX(20px);
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 2px;
-            bottom: 2px;
-            background-color: white;
-            transition: 0.4s;
-            border-radius: 50%;
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+            margin-left: 0.5rem;
+            input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+            .slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: #ccc;
+                transition: 0.4s;
+                border-radius: 34px;
+            }
+            input:checked+.slider {
+                background-color: #40BE85;
+            }
+            input:focus+.slider {
+                box-shadow: 0 0 1px #40BE85;
+            }
+            input:checked+.slider:before {
+                transform: translateX(20px);
+            }
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 16px;
+                width: 16px;
+                left: 2px;
+                bottom: 2px;
+                background-color: white;
+                transition: 0.4s;
+                border-radius: 50%;
+            }
         }
     }
 }
@@ -137,6 +153,7 @@
         font-size: 0.9rem;
         color: #777;
         font-style: italic;
+        height: 64px;
     }
     .TaskDate {
         display: flex;
@@ -160,6 +177,7 @@
 }
 
 .TaskApproverSection {
+    height: 28px;
     .TaskApprover {
         display: flex;
         gap: 6px;

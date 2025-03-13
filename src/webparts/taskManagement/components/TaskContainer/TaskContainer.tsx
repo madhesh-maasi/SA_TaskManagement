@@ -246,58 +246,60 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
       )}
       <div className={styles.headerSection}>
         <h3>Tasks</h3>
-        <div className={styles.filterSection}>
-          <Dropdown
-            style={{ width: 200 }}
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.value)}
-            options={categoryValues}
-            optionLabel="name"
-            optionValue="code"
-            placeholder="Select Category"
-          />
-          <Dropdown
-            style={{ width: 200 }}
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.value)}
-            options={statusChoices.map((li) => ({ code: li, name: li }))}
-            optionLabel="name"
-            optionValue="code"
-            placeholder="Select Status"
-          />
-          <CustomPeoplePicker
-            style={{ width: 200 }}
-            context={props.context}
-            label={`${
-              props.currentUser?.isApprover ? "Performer" : "Allocator"
-            } `}
-            selectedItems={[]}
-            onChange={(e: any) => {
-              const selected = e?.[0]?.email || "";
-              setSelectedFilterUser(selected);
-            }}
-            placeholder={
-              props.currentUser?.isApprover ? "Performer" : "Allocator"
-            }
-          />
-          <InputText
-            style={{ width: 200 }}
-            placeholder="Search"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-          />
-          <i
-            className={`pi pi-refresh ${styles.iconRefresh}`}
-            onClick={handleRefresh}
-          />
-          <PrimaryBtn
-            label="New Task"
-            onClick={() => {
-              handlerModalVisibilty(true);
-              handlerModalProps("Add", 0);
-            }}
-          />
-        </div>
+        {activeTabIndex !== 2 && (
+          <div className={styles.filterSection}>
+            <Dropdown
+              style={{ width: 200 }}
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.value)}
+              options={categoryValues}
+              optionLabel="name"
+              optionValue="code"
+              placeholder="Select Category"
+            />
+            <Dropdown
+              style={{ width: 200 }}
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.value)}
+              options={statusChoices.map((li) => ({ code: li, name: li }))}
+              optionLabel="name"
+              optionValue="code"
+              placeholder="Select Status"
+            />
+            <CustomPeoplePicker
+              style={{ width: 200 }}
+              context={props.context}
+              label={`${
+                props.currentUser?.isApprover ? "Performer" : "Allocator"
+              } `}
+              selectedItems={[]}
+              onChange={(e: any) => {
+                const selected = e?.[0]?.email || "";
+                setSelectedFilterUser(selected);
+              }}
+              placeholder={
+                props.currentUser?.isApprover ? "Performer" : "Allocator"
+              }
+            />
+            <InputText
+              style={{ width: 200 }}
+              placeholder="Search"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+            <i
+              className={`pi pi-refresh ${styles.iconRefresh}`}
+              onClick={handleRefresh}
+            />
+            <PrimaryBtn
+              label="New Task"
+              onClick={() => {
+                handlerModalVisibilty(true);
+                handlerModalProps("Add", 0);
+              }}
+            />
+          </div>
+        )}
       </div>
       {isLoading ? (
         <Loader />
@@ -310,9 +312,6 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
             // You can also call refresh or any additional logic if needed
           }}
         >
-          <TabPanel header="Recurrence">
-            <Recurrence />
-          </TabPanel>
           <TabPanel header="Card">
             <div className={styles.CardView}>
               {taskData.length > 0 ? (
@@ -356,6 +355,9 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
                 </div>
               )}
             </div>
+          </TabPanel>
+          <TabPanel header="Recurrence">
+            <Recurrence currentUser={props.currentUser} />
           </TabPanel>
         </TabView>
       )}
