@@ -46,6 +46,7 @@
         width: 100%;
         max-height: calc(100vh - 308px);
         overflow: auto;
+        padding: 1rem;
         // Apply animation to each card element
         >* {
             opacity: 0;

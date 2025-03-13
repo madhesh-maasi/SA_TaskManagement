@@ -65,10 +65,10 @@ export interface IRecurrence {
   Title: string;
   StartDate: string | undefined | any;
   EndDate: string | undefined | any;
-  Rec_Type: object;
-  Rec_Day: object;
+  Rec_Type: string;
+  Rec_Day: string;
   Rec_Date: number;
-  Rec_Status: object;
+  Rec_Status: string;
   IsApproval: boolean;
   Approver: IPersonField;
   Performer: IPersonField;

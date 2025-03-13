@@ -152,8 +152,8 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
       </div>
       {/* Description */}
       <div className={styles.taskDescription} title={task?.TaskDescription}>
-        {task?.TaskDescription && task?.TaskDescription.length > 126
-          ? task?.TaskDescription.slice(0, 126) + ". . ."
+        {task?.TaskDescription && task?.TaskDescription.length > 103
+          ? task?.TaskDescription.slice(0, 103) + ". . ."
           : task?.TaskDescription}
       </div>
       {/* Profile and Completion date */}

@@ -3,22 +3,18 @@ import * as React from "react";
 import { useEffect, useState, useRef } from "react";
 import { Config } from "../../../../Config/config";
 import SpServices from "../../../../Services/SPServices/SpServices";
-import {
-  ITaskList,
-  ITask,
-  IRecurrence,
-  IRecurrenceList,
-} from "../../../../Interface/interface";
+import { ITaskList, ITask } from "../../../../Interface/interface";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { TabView, TabPanel } from "primereact/tabview";
 import PrimaryBtn from "../../../../Common/PrimaryButton/PrimaryBtn";
-import Loader from "../../../../Common/Loader/Loader";
 import { Toast } from "primereact/toast";
 import { sp } from "@pnp/sp/presets/all";
+import Loader from "../../../../Common/Loader/Loader";
+import styles from "./TaskContainer.module.scss";
+import Recurrence from "./Recurrence/Recurrence";
 import TaskCard from "../TaskCard/TaskCard";
 import TaskList from "../TaskList/TaskList";
-import styles from "./TaskContainer.module.scss";
 import CustomPeoplePicker from "../../../../Common/CustomPeoplePicker/CustomPeoplePicker";
 import ModalPopup from "../ModalPopup/ModalPopup";
 import DeletePopup from "../../../../Common/DeletePopup/DeletePopup";
@@ -36,7 +32,6 @@ interface TasksListProps {
 const TaskContainer = (props: TasksListProps): JSX.Element => {
   const [taskData, setTaskData] = useState<ITaskList>([]);
   const [allTaskData, setAllTaskData] = useState<ITaskList>([]);
-  const [recData, setRecData] = useState<IRecurrenceList>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [deleteModalProps, setDeleteModalProps] = useState({
     flag: false,
@@ -52,6 +47,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
   const [statusChoices, setStatusChoices] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeTabIndex, setActiveTabIndex] = useState<number>(0);
+
   const toast = useRef<Toast>(null);
 
   // Filtering function
@@ -106,35 +102,6 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
     setTaskData(filtered);
   };
 
-  const handerGetRecurrenceTask = async (): Promise<void> => {
-    await SpServices.SPReadItems({
-      Listname: Config.ListName.Config_Recurrence,
-      Select:
-        "*,Performer/Title,Performer/EMail,Performer/ID,Allocator/ID,Allocator/Title,Allocator/EMail,Category/Title,Category/ID,Approver/Title,Approver/EMail,Approver/ID",
-      Expand: "Performer,Allocator,Category,Approver",
-    }).then((res: IRecurrence[]) => {
-      const _arrRecurrenceData = res.map((li: IRecurrence) => {
-        return {
-          ID: li.ID,
-          Title: li.Title,
-          TaskDescription: li.TaskDescription,
-          StartDate: new Date(li.StartDate).toLocaleDateString(),
-          EndDate: new Date(li.EndDate).toLocaleDateString(),
-          Rec_Type: li.Rec_Type,
-          Rec_Day: li.Rec_Day,
-          Rec_Date: li.Rec_Date,
-          Rec_Status: li.Rec_Status,
-          Performer: li.Performer,
-          Allocator: li.Allocator,
-          Approver: li.Approver,
-          IsApproval: li.IsApproval,
-          Category: { code: li?.Category?.ID, name: li?.Category?.Title },
-        };
-      });
-      setRecData([..._arrRecurrenceData]);
-      console.log(recData);
-    });
-  };
   // Fetch Tasks and Categories
   const handlerGetTasks = async (): Promise<void> => {
     setIsLoading(true);
@@ -248,15 +215,9 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
   ]);
   // Component Lifecycle: Fetch tasks on mount and refetch when modal or delete popup closes
   useEffect(() => {
-    handerGetRecurrenceTask()
-      .then(() => {
-        handlerGetTasks().catch((err) => {
-          console.log(err);
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    handlerGetTasks().catch((err) => {
+      console.log(err);
+    });
   }, [!showModal, !deleteModalProps.flag]);
 
   return (
@@ -349,7 +310,9 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
             // You can also call refresh or any additional logic if needed
           }}
         >
-          {/* <TabPanel header="Recurrence"></TabPanel> */}
+          <TabPanel header="Recurrence">
+            <Recurrence />
+          </TabPanel>
           <TabPanel header="Card">
             <div className={styles.CardView}>
               {taskData.length > 0 ? (
