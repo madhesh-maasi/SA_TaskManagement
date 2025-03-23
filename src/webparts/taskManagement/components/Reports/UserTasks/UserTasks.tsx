@@ -5,19 +5,17 @@ import styles from "./UserTasks.module.scss";
 
 interface UserTasksProps {
   tasks: ITaskList;
+  performers: any[]; // Expect distinct performers array via props
 }
 
-const UserTasks: React.FC<UserTasksProps> = ({ tasks }): JSX.Element => {
-  // Extract performers from tasks
-  const performers = tasks.map((task) => task.Performer);
+const UserTasks: React.FC<UserTasksProps> = ({
+  tasks,
+  performers,
+}): JSX.Element => {
+  // Use performers from props directly.
+  const distinctPerformers = performers;
 
-  // Remove duplicate performers using the EMail key
-  const distinctPerformers = performers.filter(
-    (performer, index, self) =>
-      index === self.findIndex((item) => item.EMail === performer.EMail)
-  );
-
-  // Build labels and corresponding data for each distinct performer
+  // Build labels and corresponding data for each performer
   const performerLabels = distinctPerformers.map(
     (performer) => performer.Title || performer.EMail
   );
@@ -51,7 +49,7 @@ const UserTasks: React.FC<UserTasksProps> = ({ tasks }): JSX.Element => {
     return basePalette[index % basePalette.length];
   });
 
-  // You can mix the two approaches. For example, alternate between primaryColors and multiColors:
+  // Mix the two approaches; for example, alternate between primaryColors and multiColors:
   const finalColors = performerLabels.map((_, index) => {
     return index % 2 === 0 ? primaryColors[index] : multiColors[index];
   });

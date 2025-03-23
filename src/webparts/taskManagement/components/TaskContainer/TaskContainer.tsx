@@ -139,11 +139,9 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
           Category: { code: li?.Category?.ID, name: li?.Category?.Title },
           Allocator: li.Allocator,
           Performer: li.Performer,
-          StartDate: new Date(li.StartDate).toLocaleDateString(),
-          EndDate: new Date(li.EndDate).toLocaleDateString(),
-          CompletionDate: li.CompletionDate
-            ? new Date(li.CompletionDate).toLocaleDateString()
-            : undefined,
+          StartDate: li.StartDate,
+          EndDate: li.EndDate,
+          CompletionDate: li.CompletionDate ? li.CompletionDate : undefined,
           IsApproval: li.IsApproval,
           Recurrence: li.Recurrence
             ? { ID: li.Recurrence?.ID, Title: li.Recurrence?.Title }

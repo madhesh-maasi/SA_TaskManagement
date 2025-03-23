@@ -3,6 +3,15 @@ import { ITaskList } from "../../../../../Interface/interface";
 import styles from "./TimeToComplete.module.scss";
 import { Bar } from "react-chartjs-2";
 
+// Helper to parse a formatted date string "DD/MM/YYYY" back to a Date object.
+const parseFormattedDate = (dateStr: string): Date => {
+  const parts = dateStr.split("/");
+  const day = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1;
+  const year = parseInt(parts[2], 10);
+  return new Date(year, month, day);
+};
+
 interface TimeToCompleteProps {
   tasks: ITaskList;
 }
@@ -12,33 +21,29 @@ const TimeToComplete: React.FC<TimeToCompleteProps> = ({
 }): JSX.Element => {
   // Extract performers from tasks
   const performers = tasks.map((task) => task.Performer);
-
   // Remove duplicate performers using the EMail key
   const distinctPerformers = performers.filter(
     (performer, index, self) =>
       index === self.findIndex((item) => item.EMail === performer.EMail)
   );
-
   // Build labels (performer names)
   const performerLabels = distinctPerformers.map(
     (performer) => performer.Title || performer.EMail
   );
-
-  // Compute the average number of days taken from StartDate to CompletionDate for each performer.
-  // Only include tasks where CompletionDate is not earlier than StartDate.
+  // Compute the average days from StartDate to CompletionDate for each performer.
   const averageDays = distinctPerformers.map((performer) => {
     const completedTasks = tasks.filter(
       (task) => task.Performer.EMail === performer.EMail && task.CompletionDate
     );
     const validTasks = completedTasks.filter((task) => {
-      const start = new Date(task.StartDate);
-      const end = new Date(task.CompletionDate!);
+      const start = parseFormattedDate(task.StartDate);
+      const end = parseFormattedDate(task.CompletionDate!);
       return end.getTime() >= start.getTime();
     });
     if (validTasks.length === 0) return 0;
     const totalDays = validTasks.reduce((sum, task) => {
-      const start = new Date(task.StartDate);
-      const end = new Date(task.CompletionDate!);
+      const start = parseFormattedDate(task.StartDate);
+      const end = parseFormattedDate(task.CompletionDate!);
       const diff = (end.getTime() - start.getTime()) / (1000 * 3600 * 24);
       return sum + diff;
     }, 0);
@@ -46,7 +51,6 @@ const TimeToComplete: React.FC<TimeToCompleteProps> = ({
   });
 
   // Option 1: Generate dynamic color variations based on the primary color (#40BE85)
-  // Primary color approximated as hsl(153, 66%, 50%) with lightness varying from 40% to 60%
   const primaryHue = 153;
   const primarySaturation = 66;
   const totalBars = performerLabels.length;
@@ -68,11 +72,11 @@ const TimeToComplete: React.FC<TimeToCompleteProps> = ({
     "#9966FF",
     "#FF9F40",
   ];
-  const multiColors = performerLabels.map((_, index) => {
-    return basePalette[index % basePalette.length];
-  });
+  const multiColors = performerLabels.map(
+    (_, index) => basePalette[index % basePalette.length]
+  );
 
-  // Combine the two options (alternating between primaryColors and multiColors):
+  // Combine the two options: alternate between primaryColors and multiColors.
   const finalBorderColors = performerLabels.map((_, index) =>
     index % 2 === 0 ? primaryColors[index].border : multiColors[index]
   );
@@ -93,11 +97,27 @@ const TimeToComplete: React.FC<TimeToCompleteProps> = ({
     ],
   };
 
+  // Modify legend to show each performer's username (from performerLabels)
   const options = {
     responsive: true,
     plugins: {
       legend: {
         position: "bottom",
+        labels: {
+          generateLabels: (chart: any) => {
+            const dataset = chart.data.datasets[0];
+            return chart.data.labels.map((label: any, index: number) => {
+              return {
+                text: label,
+                fillStyle: dataset.backgroundColor[index],
+                strokeStyle: dataset.borderColor[index],
+                lineWidth: dataset.borderWidth,
+                hidden: false,
+                index: index,
+              };
+            });
+          },
+        },
       },
     },
     scales: {

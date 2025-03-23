@@ -10,20 +10,35 @@
 }
 
 .LeftNavContainer {
-    background: #F4F8F5;
-    min-height: calc(100vh - 308px);
-    width: 20rem;
+    background-color: #fff;
+    height: 100vh;
+    padding: 1rem;
+    position: relative;
+    transition: width 0.3s ease, transform 0.3s ease;
+    /* animate open/close state */
     animation: slideInLeft 0.5s ease-out; // Animate the whole container
+    &.open {
+        width: 250px;
+    }
+    &:not(.open) {
+        width: 70px;
+    }
+    @media (max-width: 768px) {
+        transform: translateX(-100%);
+        &.open {
+            transform: translateX(0);
+        }
+    }
     .logoSection {
         img {
-            width: 100%;
+            width: 120px;
             padding: 24px;
         }
     }
     .NavItems {
         display: flex;
         flex-direction: column;
-        gap: 3px;
+        gap: 1rem;
         a {
             text-decoration: none;
         }
@@ -32,24 +47,29 @@
             align-items: center;
             color: #4C6359;
             gap: 12px;
-            padding: 12px 24px;
+            padding: 0.5rem;
             border-radius: 6px;
             opacity: 0; // Start hidden
             animation: slideInLeft 0.5s forwards; // Animate each nav item
+            cursor: pointer;
+            transition: background-color 0.2s ease;
             &:hover {
-                background: #DDF6EB;
+                background: #f2f2f2;
             }
             img {
                 width: 24px;
+                margin-right: 0.5rem;
             }
             .NavItemLabel {
                 font-size: 1rem;
                 font-weight: 600;
+                color: #333;
             }
             &.ActiveItem {
                 color: #40BE85;
-                background: #DDF6EB;
+                background: #e6f4f1;
                 font-weight: 700;
+                border-left: 4px solid #40BE85;
             }
         }
         // Stagger animation delays for nav items
@@ -70,4 +90,38 @@
         }
         // Add more nth-child selectors if you have additional items
     }
+}
+
+.topSection {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.hamburger {
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #333;
+    transition: transform 0.3s ease;
+    &:hover {
+        transform: rotate(90deg);
+    }
+}
+
+.toggleIcon {
+    font-size: 1.8rem;
+    cursor: pointer;
+    /* Removed rotation hover animation */
+    color: #333;
+}
+
+.NavItemLabel {
+    font-size: 1rem;
+    color: #333;
+}
+
+.ActiveItem {
+    background-color: #e6f4f1;
+    border-left: 4px solid #40be85;
 }

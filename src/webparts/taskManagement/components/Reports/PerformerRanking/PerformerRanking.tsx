@@ -5,22 +5,20 @@ import { Bar } from "react-chartjs-2";
 
 export interface PerformerRankingProps {
   tasks: ITaskList;
+  performers: { Title: string; EMail: string }[];
 }
 
 const PerformerRanking: React.FC<PerformerRankingProps> = ({
   tasks,
+  performers,
 }): JSX.Element => {
   // Filter tasks that are completed
   const completedTasks = tasks.filter((task) => task.Status === "Completed");
 
   // Extract performers from completed tasks
-  const performers = completedTasks.map((task) => task.Performer);
 
   // Remove duplicate performers using the EMail key
-  const distinctPerformers = performers.filter(
-    (performer, index, self) =>
-      index === self.findIndex((item) => item.EMail === performer.EMail)
-  );
+  const distinctPerformers = performers;
 
   // Count completed tasks per performer
   const performerCounts = distinctPerformers.map((performer) => {

@@ -69,6 +69,16 @@ const statusStyleMap: { [key: string]: React.CSSProperties } = {
   },
 };
 
+const formatDate = (dateStr?: string | null): string => {
+  if (!dateStr) return "Not Completed";
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return "Invalid Date";
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  const year = date.getFullYear();
+  return `${month}/${day}/${year}`;
+};
+
 const TaskCard = (props: TaskCardProps): JSX.Element => {
   const [task, setTask] = useState<ITask | null>(null);
   const [optionsVisible, setOptionsVisible] = useState(false);
@@ -173,19 +183,19 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
         </div>
         <div className={styles.completionDate}>
           <i className="pi pi-calendar" />
-          {task?.CompletionDate ? task?.CompletionDate : "Not Completed"}
+          {formatDate(task?.CompletionDate)}
         </div>
       </div>
       {/* Date Range */}
       <div className={styles.taskDateRange}>
         <div className={styles.taskStartDate}>
           <i className="pi pi-calendar" />
-          {new Date(task?.StartDate).toLocaleDateString()}
+          {formatDate(task?.StartDate)}
         </div>
         <div className={styles.dashLine} />
         <div className={styles.taskEndDate}>
           <i className="pi pi-calendar" />
-          {new Date(task?.EndDate).toLocaleDateString()}
+          {formatDate(task?.EndDate)}
         </div>
       </div>
       {/* Date Range */}

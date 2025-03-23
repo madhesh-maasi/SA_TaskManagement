@@ -5,15 +5,38 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Avatar } from "primereact/avatar";
 import styles from "./TaskList.module.scss";
+
 interface TaskListProps {
   taskData: ITaskList;
   handlerModalProps: (type: string, id: number) => void;
   handlerDeleteModalProps: (flag: boolean, id: number) => void;
 }
+
+// Date formatting helper using getMonth, getDate, and getFullYear for "MM/DD/YYYY" format.
+const formatDate = (dateStr?: string): string => {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return "Invalid Date";
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  const year = date.getFullYear();
+  return `${month}/${day}/${year}`;
+};
+
 const TaskList = (props: TaskListProps): JSX.Element => {
   const [taskData, setTaskData] = useState<ITaskList>([]);
 
-  // Handler Functions for column templates. . .
+  // Column template for Start Date
+  const handlerStartDateTemplate = (rowData: ITask): JSX.Element => {
+    return <>{formatDate(rowData.StartDate)}</>;
+  };
+
+  // Column template for End Date
+  const handlerEndDateTemplate = (rowData: ITask): JSX.Element => {
+    return <>{formatDate(rowData.EndDate)}</>;
+  };
+
+  // Handler Functions for other column templates. . .
   const handlerPerformerTemplate = (rowData: ITask): JSX.Element => {
     return (
       <div className={styles.tablePerformer}>
@@ -24,11 +47,13 @@ const TaskList = (props: TaskListProps): JSX.Element => {
       </div>
     );
   };
+
   const handlerCategoryTemplate = (rowData: ITask): JSX.Element => {
     return (
       <div className={styles.tableCategory}>{rowData?.Category?.name}</div>
     );
   };
+
   const handlerStatusTemplate = (rowData: ITask): JSX.Element => {
     return (
       <div
@@ -69,18 +94,21 @@ const TaskList = (props: TaskListProps): JSX.Element => {
       </div>
     );
   };
+
   const handlerTaskDescriptionTemplate = (rowData: ITask): JSX.Element => {
     return (
       <div title={rowData?.TaskDescription}>
-        {rowData.TaskDescription && rowData.TaskDescription?.length > 81
-          ? rowData?.TaskDescription.slice(0, 81) + ". . ."
-          : rowData?.TaskDescription}
+        {rowData.TaskDescription && rowData.TaskDescription.length > 81
+          ? rowData.TaskDescription.slice(0, 81) + ". . ."
+          : rowData.TaskDescription}
       </div>
     );
   };
+
   const handlerDeleteModalProps = (id: number): void => {
     props.handlerDeleteModalProps(true, id);
   };
+
   const handlerTaskAction = (rowData: ITask): JSX.Element => {
     return (
       <div className={styles.actionIcons}>
@@ -109,10 +137,12 @@ const TaskList = (props: TaskListProps): JSX.Element => {
       </div>
     );
   };
+
   // Component Lifecycle
   useEffect(() => {
     setTaskData([...props.taskData]);
   }, [props.taskData]);
+
   return (
     <div>
       {taskData?.length > 0 ? (
@@ -139,10 +169,14 @@ const TaskList = (props: TaskListProps): JSX.Element => {
           />
           <Column
             style={{ width: "6%" }}
-            field="StartDate"
             header="Start date"
+            body={handlerStartDateTemplate}
           />
-          <Column style={{ width: "6%" }} field="EndDate" header="End date" />
+          <Column
+            style={{ width: "6%" }}
+            header="End date"
+            body={handlerEndDateTemplate}
+          />
           <Column
             style={{ width: "16%" }}
             field="Status"

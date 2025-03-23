@@ -236,8 +236,9 @@ const ModalPopup = (props: ModalPopupProps): JSX.Element => {
       }
     }
     if (
-      props.modalProps.type === "Add" ||
-      (props.modalProps.type === "Edit" && task.Status === "Yet to start")
+      props.modalProps.type === "Add"
+      // ||
+      // (props.modalProps.type === "Edit" && task.Status === "Yet to start")
     ) {
       // Updated validation: start date must be greater than or equal to today
       if (startDate < today) {
