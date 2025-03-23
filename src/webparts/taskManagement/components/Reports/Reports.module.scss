@@ -1,6 +1,40 @@
 .ReportContainer {
     width: 100%;
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
+    height: calc(100vh - 176px);
+    overflow: auto;
+    .headerSection {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 1rem;
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .headerSectionTitle {
+            font-size: 20px;
+            font-weight: 600;
+            color: #40BE85;
+        }
+    }
+    .Charts {
+        width: 100%;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        padding: 1rem;
+        .Chart {
+            width: 49%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+    }
 }
