@@ -4,114 +4,121 @@
 
 .taskContainer {
     width: 100%;
-    .noTaskFound {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-    }
+    background-color: #f5f5f5;
+    min-height: calc(100vh - 100px);
+    padding: 20px;
     .headerSection {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        padding: 0 1rem;
+        align-items: flex-start;
+        background-color: #fff;
+        padding: 16px 24px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        @media (max-width: 1024px) {
+            flex-direction: column;
+            padding: 16px;
+        }
         h3 {
             color: #40BE85;
-            font-size: 1.2rem;
+            font-size: 20px;
             font-weight: 600;
             margin: 0;
+            white-space: nowrap;
         }
         .filterSection {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-left: auto;
+            @media (max-width: 1024px) {
+                margin: 16px 0 0;
+                width: 100%;
+                justify-content: flex-start;
+            }
+            @media (max-width: 768px) {
+                gap: 8px;
+            }
+            >* {
+                min-width: 200px;
+                max-width: 250px;
+                @media (max-width: 1200px) {
+                    min-width: 180px;
+                }
+                @media (max-width: 768px) {
+                    min-width: calc(50% - 4px);
+                    max-width: none;
+                }
+                @media (max-width: 480px) {
+                    min-width: 100%;
+                }
+                &:last-child {
+                    // For the New Task button
+                    min-width: auto;
+                }
+            }
             .iconRefresh {
+                min-width: auto !important;
+                width: auto !important;
                 background-color: #40BE85;
                 color: white;
                 border: none;
-                padding: 0.6rem 1rem;
-                border-radius: 0.25rem;
+                padding: 8px;
+                border-radius: 4px;
                 cursor: pointer;
+                transition: background-color 0.2s ease;
+                margin: 0 8px;
                 &:hover {
                     background-color: #2E9E6B;
+                }
+                @media (max-width: 768px) {
+                    order: -1;
+                    margin: 0;
+                }
+            }
+             :global {
+                .p-dropdown,
+                .p-inputtext {
+                    width: 100%;
+                }
+                .p-button {
+                    white-space: nowrap;
+                    @media (max-width: 768px) {
+                        width: auto !important;
+                        min-width: auto !important;
+                    }
                 }
             }
         }
     }
     .CardView {
-        display: flex;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        gap: 0.8rem;
-        width: 100%;
-        max-height: calc(100vh - 308px);
-        overflow: auto;
-        padding: 1rem;
-        // Apply animation to each card element
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        @media (min-width: 640px) {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+        @media (min-width: 1024px) {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+        @media (min-width: 1280px) {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
         >* {
+            width: 100%;
+            margin: 0;
             opacity: 0;
-            animation: cardLoad 0.5s forwards;
+            animation: cardLoad 0.3s ease forwards;
         }
-        // Staggered animation delay for the first 10 cards; extend as needed
-        >*:nth-child(1) {
-            animation-delay: 0.1s;
-        }
-        >*:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        >*:nth-child(3) {
-            animation-delay: 0.3s;
-        }
-        >*:nth-child(4) {
-            animation-delay: 0.4s;
-        }
-        >*:nth-child(5) {
-            animation-delay: 0.5s;
-        }
-        >*:nth-child(6) {
-            animation-delay: 0.6s;
-        }
-        >*:nth-child(7) {
-            animation-delay: 0.7s;
-        }
-        >*:nth-child(8) {
-            animation-delay: 0.8s;
-        }
-        >*:nth-child(9) {
-            animation-delay: 0.9s;
-        }
-        >*:nth-child(10) {
-            animation-delay: 1s;
-        }
-        >*:nth-child(11) {
-            animation-delay: 1.1s;
-        }
-        >*:nth-child(12) {
-            animation-delay: 1.2s;
-        }
-        >*:nth-child(13) {
-            animation-delay: 1.3s;
-        }
-        >*:nth-child(14) {
-            animation-delay: 1.4s;
-        }
-        >*:nth-child(15) {
-            animation-delay: 1.5s;
-        }
-        >*:nth-child(16) {
-            animation-delay: 1.6s;
-        }
-        >*:nth-child(17) {
-            animation-delay: 1.7s;
-        }
-        >*:nth-child(18) {
-            animation-delay: 1.8s;
-        }
-        >*:nth-child(19) {
-            animation-delay: 1.9s;
-        }
-        >*:nth-child(20) {
-            animation-delay: 2s;
+        @for $i from 1 through 20 {
+            >*:nth-child(#{$i}) {
+                animation-delay: #{$i * 0.05}s;
+            }
         }
     }
 }
@@ -122,31 +129,23 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
-    text-align: center;
+    padding: 48px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-top: 24px;
 }
 
 .noDataImage {
     max-width: 200px;
-    margin-bottom: 1rem;
-    animation: pulse 1.5s infinite ease-in-out;
+    margin-bottom: 24px;
+    opacity: 0.8;
 }
 
 .noDataText {
-    font-size: 1.2rem;
-    color: #777;
-}
-
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05);
-    }
-    100% {
-        transform: scale(1);
-    }
+    font-size: 16px;
+    color: #757575;
+    text-align: center;
 }
 
 @keyframes cardLoad {
@@ -157,5 +156,52 @@
     100% {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+.tabView {
+     :global {
+        .p-tabview-nav {
+            background: transparent;
+            border: none;
+            padding: 0 24px;
+            margin-bottom: 20px;
+            li {
+                margin-right: 24px;
+                .p-tabview-nav-link {
+                    background: transparent;
+                    border: none;
+                    color: #757575;
+                    padding: 12px 0;
+                    font-weight: 500;
+                    position: relative;
+                    &:hover {
+                        color: #40BE85;
+                    }
+                    &:focus {
+                        box-shadow: none;
+                    }
+                }
+                &.p-highlight {
+                    .p-tabview-nav-link {
+                        color: #40BE85;
+                        &::after {
+                            content: '';
+                            position: absolute;
+                            bottom: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 2px;
+                            background-color: #40BE85;
+                        }
+                    }
+                }
+            }
+        }
+        .p-tabview-panels {
+            padding: 0;
+            background: transparent;
+            border: none;
+        }
     }
 }

@@ -1,9 +1,11 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "./ApprovalCard.module.scss";
 import { Avatar } from "primereact/avatar";
 import ApprovalModal from "../ApprovalModal/ApprovalModal";
 import { ITask } from "../../../../../Interface/interface";
+import CustomToast, { CustomToastRef } from "../../shared/Toast";
+
 interface ApprovalCardProps {
   item: ITask;
   handlerRender: () => void;
@@ -35,6 +37,8 @@ const ApprovalCard: React.FC<ApprovalCardProps> = ({
 }): JSX.Element => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedAction, setSelectedAction] = useState("");
+  const toastRef = useRef<CustomToastRef>(null);
+
   const handlerModalToggle = (flag: boolean): void => {
     setIsModalVisible(flag);
     handlerRender();
@@ -42,8 +46,20 @@ const ApprovalCard: React.FC<ApprovalCardProps> = ({
   useEffect(() => {
     handlerModalToggle(false);
   }, []);
+
+  // const handleToast = (
+  //   severity: "success" | "info" | "warn" | "error",
+  //   summary: string,
+  //   detail: string
+  // ): void => {
+  //   if (toastRef.current) {
+  //     toastRef.current.show(severity, summary, detail);
+  //   }
+  // };
+
   return (
     <>
+      <CustomToast ref={toastRef} position="top-right" />
       <ApprovalModal
         isModalVisible={isModalVisible}
         selectedID={item.ID}

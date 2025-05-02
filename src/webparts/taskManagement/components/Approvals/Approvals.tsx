@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { TabView, TabPanel } from "primereact/tabview";
 import SpServices from "../../../../Services/SPServices/SpServices";
 import { Dropdown } from "primereact/dropdown";
@@ -8,6 +8,7 @@ import { Config } from "../../../../Config/config";
 import ApprovalCard from "./ApprovalCard/ApprovalCard";
 import styles from "./Approvals.module.scss";
 import { ITaskList, ITask } from "../../../../Interface/interface";
+import CustomToast, { CustomToastRef } from "../shared/Toast";
 
 interface ApprovalsProps {
   context: any;
@@ -21,6 +22,7 @@ const Approvals = (props: ApprovalsProps): JSX.Element => {
   const [searchText, setSearchText] = useState<string>("");
   const [categoryValues, setCategoryValues] = useState<any[]>([]);
   const [activeTabIndex, setActiveTabIndex] = useState<number>(0);
+  const toastRef = useRef<CustomToastRef>(null);
 
   // useCallback ensures the function reference remains the same unless dependencies change
   const handlerGetApprovalData = useCallback(async () => {
@@ -112,8 +114,19 @@ const Approvals = (props: ApprovalsProps): JSX.Element => {
     return matchStatus && matchCategory && matchSearch;
   });
 
+  // const handleToast = (
+  //   severity: "success" | "info" | "warn" | "error",
+  //   summary: string,
+  //   detail: string
+  // ): void => {
+  //   if (toastRef.current) {
+  //     toastRef.current.show(severity, summary, detail);
+  //   }
+  // };
+
   return (
     <div className={styles.approvalContainer}>
+      <CustomToast ref={toastRef} position="top-right" />
       <div className={styles.headerSection}>
         <div className={styles.headerSectionTitle}>
           <h3>Approvals</h3>

@@ -1,5 +1,24 @@
 .taskListTable {
     width: 100%;
+     :global {
+        .p-datatable {
+            @media screen and (max-width: 1200px) {
+                .p-datatable-wrapper {
+                    overflow-x: auto;
+                }
+            }
+            .p-datatable-thead>tr>th {
+                white-space: nowrap;
+                padding: 1rem;
+                font-weight: 600;
+                background-color: #f8f9fa;
+            }
+            .p-datatable-tbody>tr>td {
+                padding: 1rem;
+                vertical-align: middle;
+            }
+        }
+    }
 }
 
 .actionIcons {
@@ -17,10 +36,43 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    white-space: nowrap;
 }
 
 .tableCategory {
     color: #40BE85;
     font-size: 1rem;
     font-weight: 600;
+    white-space: nowrap;
+}
+
+// Responsive styles for mobile devices
+@media screen and (max-width: 768px) {
+    .taskListTable {
+         :global {
+            .p-datatable {
+                .p-datatable-thead {
+                    display: none;
+                }
+                .p-datatable-tbody>tr {
+                    display: block;
+                    margin-bottom: 1rem;
+                    border: 1px solid #dee2e6;
+                    border-radius: 4px;
+                    >td {
+                        display: block;
+                        text-align: right;
+                        padding: 0.5rem 1rem;
+                        border: none;
+                        &:before {
+                            content: attr(data-label);
+                            float: left;
+                            font-weight: bold;
+                            text-transform: uppercase;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

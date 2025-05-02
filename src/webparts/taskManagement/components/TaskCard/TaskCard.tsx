@@ -169,7 +169,6 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
       {/* Profile and Completion date */}
       <div className={styles.profileSection}>
         <div className={styles.taskPerformer}>
-          {" "}
           <Avatar
             image={`/_layouts/15/userphoto.aspx?size=S&username=${
               props.currentUser.isApprover
@@ -177,28 +176,29 @@ const TaskCard = (props: TaskCardProps): JSX.Element => {
                 : task?.Allocator?.EMail
             }`}
           />
-          {props.currentUser.isApprover
-            ? task?.Performer?.Title
-            : task?.Allocator?.Title}
+          <span>
+            {props.currentUser.isApprover
+              ? task?.Performer?.Title
+              : task?.Allocator?.Title}
+          </span>
         </div>
-        <div className={styles.completionDate}>
+        <div className={styles.completionStatus}>
           <i className="pi pi-calendar" />
-          {formatDate(task?.CompletionDate)}
+          <span>{formatDate(task?.CompletionDate)}</span>
         </div>
       </div>
       {/* Date Range */}
       <div className={styles.taskDateRange}>
-        <div className={styles.taskStartDate}>
+        <div className={styles.dateWrapper}>
           <i className="pi pi-calendar" />
-          {formatDate(task?.StartDate)}
+          <span className={styles.date}>{formatDate(task?.StartDate)}</span>
         </div>
-        <div className={styles.dashLine} />
-        <div className={styles.taskEndDate}>
+        <div className={styles.separator} />
+        <div className={styles.dateWrapper}>
           <i className="pi pi-calendar" />
-          {formatDate(task?.EndDate)}
+          <span className={styles.date}>{formatDate(task?.EndDate)}</span>
         </div>
       </div>
-      {/* Date Range */}
     </div>
   );
 };
