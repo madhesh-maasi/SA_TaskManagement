@@ -8,7 +8,7 @@ import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { TabView, TabPanel } from "primereact/tabview";
 import PrimaryBtn from "../../../../Common/PrimaryButton/PrimaryBtn";
-import { Toast } from "primereact/toast";
+// import { Toast } from "primereact/toast";
 import { sp } from "@pnp/sp/presets/all";
 import Loader from "../../../../Common/Loader/Loader";
 import styles from "./TaskContainer.module.scss";
@@ -18,6 +18,7 @@ import TaskList from "../TaskList/TaskList";
 import CustomPeoplePicker from "../../../../Common/CustomPeoplePicker/CustomPeoplePicker";
 import ModalPopup from "../ModalPopup/ModalPopup";
 import DeletePopup from "../../../../Common/DeletePopup/DeletePopup";
+import CustomToast, { CustomToastRef } from "../shared/Toast";
 
 interface TasksListProps {
   context: any;
@@ -48,7 +49,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeTabIndex, setActiveTabIndex] = useState<number>(0);
 
-  const toast = useRef<Toast>(null);
+  const toastRef = useRef<CustomToastRef>(null);
 
   // Filtering function
   const filterTasks = () => {
@@ -128,38 +129,43 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
       Expand: "Performer,Allocator,Category,Approver,Recurrence",
       Orderby: "ID",
       Orderbydecorasc: false,
-    }).then((res: ITask[]) => {
-      console.log(res);
-      _arrTaskData = res.map((li: ITask) => {
-        return {
-          ID: li.ID,
-          Title: li.Title,
-          TaskName: li.TaskName,
-          TaskDescription: li.TaskDescription,
-          Category: { code: li?.Category?.ID, name: li?.Category?.Title },
-          Allocator: li.Allocator,
-          Performer: li.Performer,
-          StartDate: li.StartDate,
-          EndDate: li.EndDate,
-          CompletionDate: li.CompletionDate ? li.CompletionDate : undefined,
-          IsApproval: li.IsApproval,
-          Recurrence: li.Recurrence
-            ? { ID: li.Recurrence?.ID, Title: li.Recurrence?.Title }
-            : undefined,
-          IsRecurrence: li?.Recurrence ? true : false,
-          IsCustomer: li.IsCustomer,
-          CustomerName: li.CustomerName,
-          CustomerNo: li.CustomerNo,
-          PerformerComments: li.PerformerComments,
-          ApprovalComments: li.ApprovalComments,
-          Status: li.Status,
-          Approver: li.Approver,
-        };
+    })
+      .then((res: any[]) => {
+        console.log(res);
+        _arrTaskData = res.map((li: ITask) => {
+          return {
+            ID: li.ID,
+            Title: li.Title,
+            TaskName: li.TaskName,
+            TaskDescription: li.TaskDescription,
+            Category: { code: li?.Category?.ID, name: li?.Category?.Title },
+            Allocator: li.Allocator,
+            Performer: li.Performer,
+            StartDate: li.StartDate,
+            EndDate: li.EndDate,
+            CompletionDate: li.CompletionDate ? li.CompletionDate : undefined,
+            IsApproval: li.IsApproval,
+            Recurrence: li.Recurrence
+              ? { ID: li.Recurrence?.ID, Title: li.Recurrence?.Title }
+              : undefined,
+            IsRecurrence: li?.Recurrence ? true : false,
+            IsCustomer: li.IsCustomer,
+            CustomerName: li.CustomerName,
+            CustomerNo: li.CustomerNo,
+            PerformerComments: li.PerformerComments,
+            ApprovalComments: li.ApprovalComments,
+            Status: li.Status,
+            Approver: li.Approver,
+          };
+        });
+        setAllTaskData([..._arrTaskData]);
+        setTaskData([..._arrTaskData]);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setIsLoading(false);
       });
-      setAllTaskData([..._arrTaskData]);
-      setTaskData([..._arrTaskData]);
-      setIsLoading(false);
-    });
   };
 
   // Delete Modal visibility handler
@@ -187,17 +193,12 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
   };
 
   const handleToast = (
-    severity: "success" | "info" | "warn" | "error" | "secondary" | "contrast",
+    severity: "success" | "info" | "warn" | "error",
     summary: string,
     detail: string
   ): void => {
-    if (toast.current) {
-      toast.current.show({
-        severity: severity,
-        summary: summary,
-        detail: detail,
-        life: 3000,
-      });
+    if (toastRef.current) {
+      toastRef.current.show(severity, summary, detail);
     }
   };
 
@@ -220,7 +221,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
 
   return (
     <div className={styles.taskContainer}>
-      <Toast ref={toast} />
+      <CustomToast ref={toastRef} position="top-right" />
       {showModal && (
         <ModalPopup
           statusChoices={statusChoices}
@@ -335,7 +336,7 @@ const TaskContainer = (props: TasksListProps): JSX.Element => {
             </div>
           </TabPanel>
           <TabPanel header="List">
-            <div className={styles.CardView}>
+            <div>
               {taskData.length > 0 ? (
                 <TaskList
                   taskData={taskData}

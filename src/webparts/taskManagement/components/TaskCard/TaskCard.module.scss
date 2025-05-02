@@ -1,110 +1,168 @@
 .cardContainer {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    padding: 10px;
-    border-radius: 5px;
+    padding: 16px;
     background-color: #fff;
-    box-shadow: 0 0 6px 2px #b7b7b7bf;
-    width: 24%;
-    max-width: 448px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    width: 300px;
+    min-height: 280px;
+    margin: 10px;
     position: relative;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    &:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
     .cardHeader {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-start;
+        margin-bottom: 16px;
         .taskNumber {
-            font-size: 1rem;
-            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             color: #40BE85;
+            font-size: 14px;
+            font-weight: 600;
         }
         .statusOptions {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             .statusText {
-                font-weight: 400;
-                padding: 6px 24px;
-                background: #DDE6F6;
-                color: #3362B5;
-                border-radius: 10px;
+                padding: 4px 12px;
+                border-radius: 16px;
+                font-size: 12px;
+                font-weight: 500;
+                background-color: #ffebee;
+                color: #d32f2f;
+                &.Overdue {
+                    background-color: #ffebee;
+                    color: #d32f2f;
+                }
+                &.InProgress {
+                    background-color: #e3f2fd;
+                    color: #1976d2;
+                }
+                &.Completed {
+                    background-color: #e8f5e9;
+                    color: #2e7d32;
+                }
             }
             i {
                 cursor: pointer;
+                color: #757575;
+                font-size: 16px;
+                padding: 4px;
+                border-radius: 4px;
+                transition: all 0.2s ease;
+                &:hover {
+                    background-color: #f5f5f5;
+                    color: #424242;
+                }
             }
         }
     }
     .titleSection {
-        display: flex;
-        justify-content: space-between;
+        margin-bottom: 12px;
         .taskTitle {
-            color: #7A847F;
-            font-size: 1rem;
+            font-size: 16px;
             font-weight: 600;
+            color: #212121;
+            margin-bottom: 8px;
+            line-height: 1.4;
         }
         .taskCategory {
+            display: inline-block;
+            padding: 4px 12px;
+            background-color: rgba(64, 190, 133, 0.1);
             color: #40BE85;
-            font-size: 1rem;
-            font-weight: 600;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
         }
     }
     .taskDescription {
-        color: #7A847F;
-        font-size: 1rem;
-        font-style: italic;
-        height: 64px;
+        color: #616161;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 16px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .profileSection {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        margin-top: auto;
+        padding-top: 16px;
+        border-top: 1px solid #eeeeee;
         .taskPerformer {
-            font-size: 1rem;
-            color: #7A847F;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            margin-bottom: 12px;
+            img {
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                border: 2px solid #fff;
+                box-shadow: 0 0 0 1px #e0e0e0;
+            }
+            span {
+                font-size: 14px;
+                color: #424242;
+            }
         }
-        .completionDate {
-            font-size: 1rem;
-            color: #40BE85;
-            font-weight: 500;
+        .completionStatus {
             display: flex;
-            gap: 6px;
             align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #40BE85;
             i {
-                font-size: 1.25rem;
-                font-weight: 600;
+                font-size: 16px;
             }
         }
     }
     .taskDateRange {
+        margin-top: 12px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        i {
-            color: #40BE85;
-            font-size: 1.25rem;
-            font-weight: bold;
-        }
-        .taskStartDate {
+        font-size: 13px;
+        color: #757575;
+        .dateWrapper {
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 1rem;
-            color: #7A847F;
+            i {
+                color: #40BE85;
+                font-size: 14px;
+            }
+            .date {
+                white-space: nowrap;
+            }
         }
-        .dashLine {
-            width: 50%;
-            border-bottom: 2px dashed #40BE85;
-        }
-        .taskEndDate {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 1rem;
-            color: #7A847F;
+        .separator {
+            flex: 1;
+            height: 1px;
+            background: #e0e0e0;
+            margin: 0 12px;
+            position: relative;
+            &::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 0;
+                right: 0;
+                height: 1px;
+                background: linear-gradient(to right, #40BE85 50%, transparent 50%);
+                background-size: 8px 1px;
+            }
         }
     }
 }

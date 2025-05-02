@@ -146,44 +146,71 @@ const TaskList = (props: TaskListProps): JSX.Element => {
   return (
     <div>
       {taskData?.length > 0 ? (
-        <DataTable value={taskData} className={styles.taskListTable}>
-          <Column style={{ width: "4%" }} field="Title" header="No" />
-          <Column style={{ width: "14%" }} field="TaskName" header="Name" />
+        <DataTable
+          value={taskData}
+          className={styles.taskListTable}
+          responsiveLayout="scroll"
+          scrollable
+          scrollHeight="flex"
+        >
+          <Column
+            style={{ width: "4%" }}
+            field="Title"
+            header="No"
+            data-label="No"
+          />
+          <Column
+            style={{ width: "14%" }}
+            field="TaskName"
+            header="Name"
+            data-label="Name"
+          />
           <Column
             style={{ width: "12%" }}
             field="Category"
             header="Category"
             body={handlerCategoryTemplate}
+            data-label="Category"
           />
           <Column
             style={{ width: "30%" }}
             field="TaskDescription"
             header="Description"
             body={handlerTaskDescriptionTemplate}
+            data-label="Description"
           />
           <Column
             style={{ width: "15%" }}
             field="Performer"
             header="Assigned to"
             body={handlerPerformerTemplate}
+            data-label="Assigned to"
           />
           <Column
             style={{ width: "6%" }}
             header="Start date"
             body={handlerStartDateTemplate}
+            data-label="Start date"
           />
           <Column
             style={{ width: "6%" }}
             header="End date"
             body={handlerEndDateTemplate}
+            data-label="End date"
           />
           <Column
             style={{ width: "16%" }}
             field="Status"
             header="Status"
             body={handlerStatusTemplate}
+            data-label="Status"
           />
-          <Column style={{ width: "6%" }} header="" body={handlerTaskAction} />
+          <Column
+            style={{ width: "6%" }}
+            header=""
+            body={handlerTaskAction}
+            data-label="Actions"
+          />
         </DataTable>
       ) : (
         ""
