@@ -10,6 +10,9 @@ import LatePerformers from "./LatePerformers/LatePerformers";
 import TimeToComplete from "./TimeToComplete/TimeToComplete";
 import PerformerRanking from "./PerformerRanking/PerformerRanking";
 
+import * as Excel from "exceljs";
+import * as FileSaver from "file-saver";
+
 // Helper function to format date using DD/MM/YYYY format
 const formatDate = (dateString: string): string => {
   return new Intl.DateTimeFormat("en-GB", {
@@ -208,6 +211,233 @@ const Reports = (props: ReportsProps): JSX.Element => {
     setTasks([...filteredTasks]);
   };
 
+  const createExcelFile = (tasks: ITaskList, allTasks: ITaskList, performers: { EMail: string; Title: string }[]) => {
+    const workbook = new Excel.Workbook();
+
+    const headerStyle = (worksheet: any, headerKeys: any) => {
+      headerKeys.forEach((key: any) => {
+        worksheet.getCell(key).fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "40be85" },
+        };
+        worksheet.getCell(key).font = { color: { argb: "FFFFFF" }, bold: true };
+      });
+    };
+
+    const addSheet = (sheetName: string, columns: any[], data: any[]) => {
+      const worksheet = workbook.addWorksheet(sheetName);
+      worksheet.columns = columns;
+
+      data.forEach((item: any) => worksheet.addRow(item));
+
+      // Apply header styles
+      const colKeys = worksheet.columns.map((_, idx: number) =>
+        String.fromCharCode(65 + idx) + "1"
+      );
+      headerStyle(worksheet, colKeys);
+    };
+
+    // 1. Total Tasks Summary
+    const statusCounts = {
+      "Yet to start": tasks.filter(t => t.Status === "Yet to start").length,
+      "In Progress": tasks.filter(t => t.Status === "In Progress").length,
+      "Overdue": tasks.filter(t => t.Status === "Overdue").length,
+      "Completed": tasks.filter(t => t.Status === "Completed").length,
+      "Approved": tasks.filter(t => t.Status === "Approved").length,
+      "Rejected": tasks.filter(t => t.Status === "Rejected").length
+    };
+
+    addSheet(
+      "Total Tasks Summary",
+      [
+        { header: "Status", key: "Status", width: 20 },
+        { header: "Count", key: "Count", width: 15 },
+        { header: "Percentage", key: "Percentage", width: 15 }
+      ],
+      Object.entries(statusCounts).map(([status, count]) => ({
+        Status: status,
+        Count: count,
+        Percentage: `${((count / tasks.length) * 100).toFixed(2)}%`
+      }))
+    );
+
+    // 2. Detailed Tasks
+    addSheet(
+      "Detailed Tasks",
+      [
+        { header: "ID", key: "ID", width: 10 },
+        { header: "Title", key: "Title", width: 30 },
+        { header: "Task Name", key: "TaskName", width: 30 },
+        { header: "Category", key: "Category", width: 20 },
+        { header: "Performer", key: "Performer", width: 25 },
+        { header: "Allocator", key: "Allocator", width: 25 },
+        { header: "Start Date", key: "StartDate", width: 15 },
+        { header: "End Date", key: "EndDate", width: 15 },
+        { header: "Completion Date", key: "CompletionDate", width: 15 },
+        { header: "Status", key: "Status", width: 15 },
+        { header: "Is Approval", key: "IsApproval", width: 15 },
+        { header: "Customer Name", key: "CustomerName", width: 25 }
+      ],
+      tasks.map(task => ({
+        ID: task.ID,
+        Title: task.Title,
+        TaskName: task.TaskName,
+        Category: task.Category?.name || "N/A",
+        Performer: task.Performer?.Title || task.Performer?.EMail || "N/A",
+        Allocator: task.Allocator?.Title || task.Allocator?.EMail || "N/A",
+        StartDate: task.StartDate,
+        EndDate: task.EndDate,
+        CompletionDate: task.CompletionDate || "N/A",
+        Status: task.Status,
+        IsApproval: task.IsApproval ? "Yes" : "No",
+        CustomerName: task.CustomerName || "N/A"
+      }))
+    );
+
+    // 3. User Tasks Distribution
+    addSheet(
+      "User Tasks Distribution",
+      [
+        { header: "Performer", key: "Performer", width: 30 },
+        { header: "Total Tasks", key: "TotalTasks", width: 15 },
+        { header: "Completed", key: "Completed", width: 15 },
+        { header: "In Progress", key: "InProgress", width: 15 },
+        { header: "Overdue", key: "Overdue", width: 15 },
+        { header: "Yet to Start", key: "YetToStart", width: 15 }
+      ],
+      performers.map(performer => {
+        const performerTasks = tasks.filter(t => t.Performer?.EMail === performer.EMail);
+        return {
+          Performer: performer.Title || performer.EMail,
+          TotalTasks: performerTasks.length,
+          Completed: performerTasks.filter(t => t.Status === "Completed").length,
+          InProgress: performerTasks.filter(t => t.Status === "In Progress").length,
+          Overdue: performerTasks.filter(t => t.Status === "Overdue").length,
+          YetToStart: performerTasks.filter(t => t.Status === "Yet to start").length
+        };
+      })
+    );
+
+    // 4. Late Performers Analysis
+    const overdueTasks = tasks.filter(t => t.Status === "Overdue");
+    const latePerformersData = performers
+      .filter(performer => overdueTasks.some(t => t.Performer?.EMail === performer.EMail))
+      .reduce((acc, performer) => {
+        const performerOverdueTasks = overdueTasks.filter(t => t.Performer?.EMail === performer.EMail);
+        const performerData = performerOverdueTasks.map(task => ({
+          Performer: performer.Title || performer.EMail,
+          TaskName: task.TaskName,
+          EndDate: task.EndDate,
+          StartDate: task.StartDate,
+          Category: task.Category?.name || "N/A"
+        }));
+        return [...acc, ...performerData];
+      }, [] as Array<{
+        Performer: string;
+        TaskName: string;
+        EndDate: string;
+        StartDate: string;
+        Category: string;
+      }>);
+
+    addSheet(
+      "Late Performers Analysis",
+      [
+        { header: "Performer", key: "Performer", width: 30 },
+        { header: "Task Name", key: "TaskName", width: 40 },
+        { header: "Start Date", key: "StartDate", width: 15 },
+        { header: "End Date", key: "EndDate", width: 15 },
+        { header: "Category", key: "Category", width: 20 }
+      ],
+      latePerformersData
+    );
+
+    // 5. Time to Complete Analysis
+    const completedTasks = allTasks.filter(t => t.Status === "Completed" && t.CompletionDate);
+    addSheet(
+      "Time to Complete Analysis",
+      [
+        { header: "Performer", key: "Performer", width: 30 },
+        { header: "Total Completed Tasks", key: "TotalCompleted", width: 20 },
+        { header: "Average Days to Complete", key: "AvgDays", width: 20 },
+        { header: "Min Days", key: "MinDays", width: 15 },
+        { header: "Max Days", key: "MaxDays", width: 15 }
+      ],
+      performers.map(performer => {
+        const performerCompletedTasks = completedTasks.filter(t => t.Performer?.EMail === performer.EMail);
+        if (performerCompletedTasks.length === 0) return null;
+
+        const completionTimes = performerCompletedTasks.map(task => {
+          const start = parseUKDate(task.StartDate);
+          const end = parseUKDate(task.CompletionDate!);
+          return (end.getTime() - start.getTime()) / (1000 * 3600 * 24);
+        });
+
+        return {
+          Performer: performer.Title || performer.EMail,
+          TotalCompleted: performerCompletedTasks.length,
+          AvgDays: (completionTimes.reduce((a, b) => a + b, 0) / completionTimes.length).toFixed(2),
+          MinDays: Math.min(...completionTimes).toFixed(2),
+          MaxDays: Math.max(...completionTimes).toFixed(2)
+        };
+      }).filter(Boolean)
+    );
+
+    // 6. Performer Ranking
+    addSheet(
+      "Performer Ranking",
+      [
+        { header: "Performer", key: "Performer", width: 30 },
+        { header: "Total Tasks", key: "TotalTasks", width: 15 },
+        { header: "Completed Tasks", key: "CompletedTasks", width: 15 },
+        { header: "Completion Rate", key: "CompletionRate", width: 15 },
+        { header: "On Time Rate", key: "OnTimeRate", width: 15 }
+      ],
+      performers.map(performer => {
+        const performerTasks = tasks.filter(t => t.Performer?.EMail === performer.EMail);
+        const completedTasks = performerTasks.filter(t => t.Status === "Completed");
+        const onTimeTasks = completedTasks.filter(task => {
+          if (!task.CompletionDate) return false;
+          const completionDate = parseUKDate(task.CompletionDate);
+          const endDate = parseUKDate(task.EndDate);
+          return completionDate <= endDate;
+        });
+
+        const totalTasks = performerTasks.length;
+        const completedCount = completedTasks.length;
+        const onTimeCount = onTimeTasks.length;
+
+        // Calculate rates with proper handling of division by zero
+        const completionRate = totalTasks > 0
+          ? ((completedCount / totalTasks) * 100).toFixed(2)
+          : "0.00";
+
+        const onTimeRate = completedCount > 0
+          ? ((onTimeCount / completedCount) * 100).toFixed(2)
+          : "0.00";
+
+        return {
+          Performer: performer.Title || performer.EMail,
+          TotalTasks: totalTasks,
+          CompletedTasks: completedCount,
+          CompletionRate: `${completionRate}%`,
+          OnTimeRate: `${onTimeRate}%`
+        };
+      })
+    );
+
+    workbook.xlsx
+      .writeBuffer()
+      .then((buffer: any) =>
+        FileSaver.saveAs(
+          new Blob([buffer]),
+          `TaskReports_${new Date().toLocaleString().replace(/[/:]/g, '-')}.xlsx`
+        )
+      )
+      .catch((err: any) => console.log("Error writing Excel export", err));
+  };
+
   // Load tasks on component mount
   useEffect(() => {
     handlerGetAllTasks().catch((error) => console.error(error));
@@ -224,6 +454,15 @@ const Reports = (props: ReportsProps): JSX.Element => {
             marginBottom: "1rem",
           }}
         >
+          <i
+            title="Export excel"
+            className="pi pi-upload"
+            style={{ fontSize: "1.3rem", color: "#01a977", display: "flex", cursor: "pointer", alignItems: "center", marginRight: "1rem" }}
+            onClick={() => {
+              createExcelFile(tasks, allTasks, performers)
+            }
+            }
+          ></i>
           <DateRangeFilter
             startDate={startDate}
             endDate={endDate}
